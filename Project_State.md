@@ -10,21 +10,37 @@ This device is intended as a visualizer for audio playback for a linked device. 
 * **Visualizer Engine:** libprojectM / MilkDrop (C++ native library integrated via Flutter FFI/Textures)
 * **Data Sources:** WebSockets / HTTP APIs for weather, audio metadata, ReplayGain/playback state
 
-## 2. Current Architecture & Folder Structure
-* `lib/ui/` -> Watch-style circular/square widgets, page transitions
-* `lib/visualizer/` -> FFI bridge to libprojectM, preset switcher
-* `lib/services/` -> Audio metadata listener, weather service
 
-## 3. Completed Features
-* [x] Basic Flutter UI layout with widget grid
-* [x] FFI bindings generated for projectM native library
 
-## 4. Current Task / Active Focus
-* [ ] Implementing real-time audio FFT/PCM data stream into projectM native texture
+Portable Ambient Link — Software Development Roadmap
 
-## 5. Next Steps / Roadmap
-1. Polishing MilkDrop preset transition animations
-2. Adding watch-style gesture navigation (swipes/rotations)
 
-## 6. Known Bugs & Tech Debt
-* Frame rate drops when switching heavy `.milk` presets
+Phase 1: Native Engine & Flutter FFI Plumbing (Week 1)
+
+Goal: Get libprojectM rendering .milk presets inside a Flutter desktop target.
+[ ] Build dynamic native libraries (.dll / .so) for libprojectM using CMake.
+[ ] Configure ffigen and generate Dart FFI bindings (lib/visualizer/generated_bindings.dart).
+[ ] Connect libprojectM rendering output to Flutter using a native C++ Texture Entry.
+[ ] Create a mock PCM generator to feed fake audio data via FFI and verify visual rendering.
+
+Phase 2: Audio Streaming & Data Synchronization (Week 2)
+
+Goal: Hook up live system audio loopback and setup real-time metadata syncing.
+[ ] Implement desktop audio loopback (WASAPI/PulseAudio) to feed real 16/32-bit float PCM buffers.
+[ ] Implement WebSocket client in lib/services/ for live audio player state changes.
+[ ] Build HTTP service for track metadata, artwork loading, and ReplayGain values.
+[ ] Build a local Python/Node mock server to emit simulated playback events and art URLs.
+
+Phase 3: Watch UI, Gestures & Preset Switcher (Week 3)
+
+Goal: Develop app state engine, gesture controls, and preset management.
+[ ] Build State Machine: Standby View (clock/weather) vs. Active View (art/controls/visualizer).
+[ ] Build watch-style UI widgets (lib/ui/) with swipe gestures for preset and page switching.
+[ ] Implement .milk preset manager for manual selection and automated crossfade cycling.
+
+Phase 4: Weather Integration, Optimization & Prep (Week 4)
+
+Goal: Polish performance, resolve frame drops, and simulate final screen resolution.
+[ ] Integrate Open-Meteo API in weather_service.dart for standby weather widgets.
+[ ] Profile and resolve frame drops during complex preset transitions; optimize FFI memory allocation.
+[ ] Lock desktop preview to target resolution (e.g., 480x480 circular/square layout) for UI scaling tests.
