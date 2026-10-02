@@ -70,15 +70,29 @@ Goal: Polish performance, resolve frame drops, and simulate final screen resolut
 
 
 
-$env:Path += ";C:\\Program Files\\Git\\cmd"
 
-$env:Path += ";C:\\Users\\michael.emborsky\\Dev\\flutter\\bin"
 
 
 
 
 
 $env:Path += ";C:\\Program Files\\Git\\cmd;C:\\Users\\michael.emborsky\\Dev\\flutter\\bin"
+
+
+
+flutter clean
+
+
+
+Remove-Item -Force .flutter-plugins-dependencies
+
+Remove-Item -Force .flutter-plugins
+
+Remove-Item -Recurse -Force .\\build
+
+flutter run -d edge --no-pub
+
+
 
 
 
