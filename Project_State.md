@@ -26,6 +26,10 @@ Goal: Get libprojectM rendering .milk presets inside a Flutter desktop target.
 \[ ] Connect libprojectM rendering output to Flutter using a native C++ Texture Entry.
 \[ ] Create a mock PCM generator to feed fake audio data via FFI and verify visual rendering.
 
+
+
+
+
 Phase 2: Audio Streaming \& Data Synchronization (Week 2)
 
 Goal: Hook up live system audio loopback and setup real-time metadata syncing.
@@ -34,12 +38,24 @@ Goal: Hook up live system audio loopback and setup real-time metadata syncing.
 \[ ] Build HTTP service for track metadata, artwork loading, and ReplayGain values.
 \[ ] Build a local Python/Node mock server to emit simulated playback events and art URLs.
 
+
+
+
+
+
+
 Phase 3: Watch UI, Gestures \& Preset Switcher (Week 3)
 
 Goal: Develop app state engine, gesture controls, and preset management.
 \[ ] Build State Machine: Standby View (clock/weather) vs. Active View (art/controls/visualizer).
 \[ ] Build watch-style UI widgets (lib/ui/) with swipe gestures for preset and page switching.
 \[ ] Implement .milk preset manager for manual selection and automated crossfade cycling.
+
+
+
+
+
+
 
 Phase 4: Weather Integration, Optimization \& Prep (Week 4)
 
@@ -94,5 +110,21 @@ $env:Path += ";C:\\Program Files\\Git\\cmd;C:\\Users\\michael.emborsky\\Dev\\flu
 
 &#x20;  git clone --recursive \[https://github.com/projectM-visualizer/projectm.git](https://github.com/projectM-visualizer/projectm.git)
 
-&#x20;  cd projectm
+&#x20;  cd project
+
+
+
+FOR CONTEXT I AM DEVELOPING ON TWO SEPARATE MACHINES
+
+
+
+One machine is my work computer. This is where I am using those custom environment paths, as it is managed and I don't always have permissions.
+
+
+
+The other machine is my personal computer. This is not managed and I can do whatever with this, but its a desktop at home. 
+
+
+
+I play to do a lot of developing on the work one if possible and then more of the testing on the personal computer.
 
