@@ -72,7 +72,7 @@ Goal: Polish performance, resolve frame drops, and simulate final screen resolut
 
 
 
-
+Remove-Item -Recurse -Force .\\build
 
 
 
@@ -80,17 +80,29 @@ $env:Path += ";C:\\Program Files\\Git\\cmd;C:\\Users\\michael.emborsky\\Dev\\flu
 
 
 
-flutter clean
-
-
-
-Remove-Item -Force .flutter-plugins-dependencies
-
-Remove-Item -Force .flutter-plugins
-
-Remove-Item -Recurse -Force .\\build
-
 flutter run -d edge --no-pub
+
+
+
+
+
+
+
+lib/
+
+└── ui/
+
+&#x20;   ├── standby\_view.dart          # Main Standby container \& PageView controller
+
+&#x20;   ├── settings/
+
+&#x20;   │   └── main\_settings\_widget.dart  # Settings sub-page navigation \& views manager
+
+&#x20;   └── widgets/
+
+&#x20;       ├── clock\_widget.dart      # ClockWidget \& AnalogClockPainter
+
+&#x20;       └── weather\_widget.dart    # WeatherWidget placeholder
 
 
 
@@ -136,7 +148,7 @@ One machine is my work computer. This is where I am using those custom environme
 
 
 
-The other machine is my personal computer. This is not managed and I can do whatever with this, but its a desktop at home. 
+The other machine is my personal computer. This is not managed and I can do whatever with this, but its a desktop at home.
 
 
 
