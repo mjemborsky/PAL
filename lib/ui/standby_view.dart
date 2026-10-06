@@ -69,12 +69,9 @@ class _StandbyViewState extends State<StandbyView> {
     final velocityY = details.primaryVelocity ?? 0.0;
     const velocityThreshold = 200.0;
 
-    // Swiping DOWN anywhere on screen pulls the overlay down
     if (velocityY > velocityThreshold) {
       _showOverlay();
-    }
-    // Swiping UP anywhere on screen pushes the overlay away
-    else if (velocityY < -velocityThreshold) {
+    } else if (velocityY < -velocityThreshold) {
       _hideOverlay();
     }
   }
@@ -113,6 +110,7 @@ class _StandbyViewState extends State<StandbyView> {
             });
           },
           onUpdateConfig: () {
+            // Trigger rebuild when any config changes, including theme toggles
             setState(() {});
           },
         );
@@ -122,49 +120,78 @@ class _StandbyViewState extends State<StandbyView> {
   @override
   Widget build(BuildContext context) {
     final activeWidgets = _widgets.where((w) => w.isEnabled).toList();
+    final isDarkMode = _generalConfig.themeMode == AppThemeMode.dark;
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onVerticalDragEnd: _handleVerticalDragEnd,
-        child: Stack(
-          children: [
-            // Base View PageView (Clock, Weather, Settings)
-            if (activeWidgets.isNotEmpty)
-              PageView.builder(
-                itemCount: activeWidgets.length,
-                itemBuilder: (context, index) {
-                  return _buildActiveWidget(activeWidgets[index]);
-                },
-              )
-            else
-              const Center(
-                child: Text(
-                  'No Active Widgets Enabled',
-                  style: TextStyle(color: Colors.white54, fontSize: 18),
-                ),
-              ),
-
-            // Sliding Opaque Active Listening Overlay
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 350),
-              curve: Curves.easeOutCubic,
-              top: _isOverlayVisible ? 0 : -MediaQuery.of(context).size.height,
-              left: 0,
-              right: 0,
-              height: MediaQuery.of(context).size.height,
-              child: Container(
-                color: Colors
-                    .black, // Fully opaque backdrop blocking standard widgets
-                child: ActiveListeningWidget(
-                  config: _activeListeningConfig,
-                  onDismiss: _hideOverlay,
-                  onReveal: _showOverlay,
-                ),
-              ),
+    final themeData = isDarkMode
+        ? ThemeData.dark().copyWith(
+            scaffoldBackgroundColor: Colors.black,
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.cyanAccent,
+              surface: Colors.black,
             ),
-          ],
+            dividerColor: Colors.white12,
+          )
+        : ThemeData.light().copyWith(
+            scaffoldBackgroundColor: const Color(0xFFF5F5F7),
+            colorScheme: const ColorScheme.light(
+              primary: Colors.cyan,
+              surface: Color(0xFFF5F5F7),
+            ),
+            dividerColor: Colors.black12,
+          );
+
+    return Theme(
+      data: themeData,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        color: themeData.scaffoldBackgroundColor,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onVerticalDragEnd: _handleVerticalDragEnd,
+            child: Stack(
+              children: [
+                if (activeWidgets.isNotEmpty)
+                  PageView.builder(
+                    itemCount: activeWidgets.length,
+                    itemBuilder: (context, index) {
+                      return _buildActiveWidget(activeWidgets[index]);
+                    },
+                  )
+                else
+                  Center(
+                    child: Text(
+                      'No Active Widgets Enabled',
+                      style: TextStyle(
+                        color: isDarkMode ? Colors.white54 : Colors.black54,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+
+                // Sliding Opaque Active Listening Overlay (stays dark for visualizer)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeOutCubic,
+                  top: _isOverlayVisible
+                      ? 0
+                      : -MediaQuery.of(context).size.height,
+                  left: 0,
+                  right: 0,
+                  height: MediaQuery.of(context).size.height,
+                  child: Container(
+                    color: Colors.black,
+                    child: ActiveListeningWidget(
+                      config: _activeListeningConfig,
+                      onDismiss: _hideOverlay,
+                      onReveal: _showOverlay,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

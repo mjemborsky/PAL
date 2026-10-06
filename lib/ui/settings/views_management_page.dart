@@ -5,8 +5,8 @@ class ViewsManagementPage extends StatelessWidget {
   final List<StandbyWidgetConfig> allWidgets;
   final Function(int oldIndex, int newIndex) onReorder;
   final Function(String id, bool enabled) onToggle;
-  final Function(StandbyWidgetConfig widget) onSelectWidget;
   final Function(StandbyWidgetType type) onAddWidget;
+  final Function(StandbyWidgetConfig widget) onSelectWidget;
   final VoidCallback onBack;
 
   const ViewsManagementPage({
@@ -14,157 +14,137 @@ class ViewsManagementPage extends StatelessWidget {
     required this.allWidgets,
     required this.onReorder,
     required this.onToggle,
-    required this.onSelectWidget,
     required this.onAddWidget,
+    required this.onSelectWidget,
     required this.onBack,
   });
 
-  void _showAddWidgetDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.grey.shade900,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Add View',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: const Icon(Icons.access_time_filled,
-                    color: Colors.cyanAccent),
-                title: const Text('Clock View',
-                    style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  onAddWidget(StandbyWidgetType.clock);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.wb_sunny, color: Colors.cyanAccent),
-                title: const Text('Weather View',
-                    style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  onAddWidget(StandbyWidgetType.weather);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final headerTextColor = isDark ? Colors.white : Colors.black87;
+    final cardBgColor = isDark ? Colors.grey.shade900 : Colors.white;
+    final itemTextColor = isDark ? Colors.white : Colors.black87;
+    final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+
     return Column(
-      key: const ValueKey('ViewsSubPage'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.cyanAccent),
-              onPressed: onBack,
-            ),
-            const SizedBox(width: 4),
-            const Expanded(
-              child: Text(
-                'Views Management',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+            Row(
+              children: [
+                IconButton(
+                  icon:
+                      Icon(Icons.arrow_back, color: theme.colorScheme.primary),
+                  onPressed: onBack,
                 ),
-              ),
+                const SizedBox(width: 8),
+                Text(
+                  'Views Management',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: headerTextColor,
+                  ),
+                ),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline,
-                  color: Colors.cyanAccent, size: 26),
-              onPressed: () => _showAddWidgetDialog(context),
+            PopupMenuButton<StandbyWidgetType>(
+              icon: Icon(Icons.add_circle_outline,
+                  color: theme.colorScheme.primary, size: 28),
+              onSelected: onAddWidget,
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: StandbyWidgetType.clock,
+                  child: Text('Add Clock Widget'),
+                ),
+                const PopupMenuItem(
+                  value: StandbyWidgetType.weather,
+                  child: Text('Add Weather Widget'),
+                ),
+              ],
             ),
           ],
         ),
         const SizedBox(height: 4),
-        Text(
-          'Tap view to configure options, or drag handles to reorder.',
-          style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+        Padding(
+          padding: const EdgeInsets.only(left: 48.0),
+          child: Text(
+            'Tap view to configure options, or drag handles to reorder.',
+            style: TextStyle(fontSize: 13, color: subtitleColor),
+          ),
         ),
-        const SizedBox(height: 8),
-        const Divider(color: Colors.white24),
+        const SizedBox(height: 16),
         Expanded(
           child: ReorderableListView.builder(
             itemCount: allWidgets.length,
             onReorder: onReorder,
             itemBuilder: (context, index) {
-              final item = allWidgets[index];
-              final isSettings = item.type == StandbyWidgetType.settings;
+              final widgetItem = allWidgets[index];
+              final isSettings = widgetItem.type == StandbyWidgetType.settings;
 
-              return Card(
-                key: ValueKey('list_item_${item.id}'),
-                color: Colors.grey.shade900,
-                margin: const EdgeInsets.symmetric(vertical: 4.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(
-                    color: item.isEnabled
-                        ? Colors.cyanAccent.withValues(alpha: 0.3)
-                        : Colors.transparent,
+              return Container(
+                key: ValueKey(widgetItem.id),
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: cardBgColor,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? Colors.white10 : Colors.black12,
+                    width: 1,
                   ),
+                  boxShadow: isDark
+                      ? []
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                 ),
                 child: ListTile(
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                  onTap: isSettings ? null : () => onSelectWidget(item),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   leading: Icon(
-                    _getWidgetIcon(item.type),
-                    color: item.isEnabled ? Colors.cyanAccent : Colors.grey,
+                    _getWidgetIcon(widgetItem.type),
+                    color: theme.colorScheme.primary,
                   ),
                   title: Text(
-                    item.title,
+                    widgetItem.title,
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      decoration:
-                          item.isEnabled ? null : TextDecoration.lineThrough,
+                      fontWeight: FontWeight.bold,
+                      color: itemTextColor,
                     ),
                   ),
                   subtitle: Text(
                     isSettings ? 'Always active' : 'Tap to customize',
                     style: TextStyle(
-                      color: isSettings ? Colors.cyanAccent : Colors.grey,
-                      fontSize: 11,
+                      fontSize: 12,
+                      color: isSettings
+                          ? theme.colorScheme.primary
+                          : subtitleColor,
                     ),
                   ),
+                  onTap: isSettings ? null : () => onSelectWidget(widgetItem),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Switch(
-                        value: item.isEnabled,
-                        activeThumbColor: Colors.cyanAccent,
-                        onChanged:
-                            isSettings ? null : (val) => onToggle(item.id, val),
+                        value: widgetItem.isEnabled,
+                        activeThumbColor: theme.colorScheme.primary,
+                        onChanged: isSettings
+                            ? null
+                            : (val) => onToggle(widgetItem.id, val),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 8),
                       ReorderableDragStartListener(
                         index: index,
-                        child: const Padding(
-                          padding: EdgeInsets.all(6.0),
-                          child: Icon(Icons.drag_handle, color: Colors.white70),
-                        ),
+                        child: Icon(Icons.drag_handle, color: subtitleColor),
                       ),
                     ],
                   ),
@@ -180,7 +160,7 @@ class ViewsManagementPage extends StatelessWidget {
   IconData _getWidgetIcon(StandbyWidgetType type) {
     switch (type) {
       case StandbyWidgetType.clock:
-        return Icons.access_time_filled;
+        return Icons.access_time;
       case StandbyWidgetType.weather:
         return Icons.wb_sunny;
       case StandbyWidgetType.settings:

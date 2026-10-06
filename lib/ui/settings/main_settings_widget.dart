@@ -39,8 +39,11 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -52,16 +55,17 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
-                    children: const [
-                      Icon(Icons.settings, color: Colors.cyanAccent, size: 28),
-                      SizedBox(width: 12),
+                    children: [
+                      Icon(Icons.settings,
+                          color: theme.colorScheme.primary, size: 28),
+                      const SizedBox(width: 12),
                       Text(
                         'SETTINGS',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 2.0,
-                          color: Colors.white,
+                          color: isDark ? Colors.white : Colors.black87,
                         ),
                       ),
                     ],
@@ -70,14 +74,15 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                     'PAL v1.0',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade600,
+                      color:
+                          isDark ? Colors.grey.shade600 : Colors.grey.shade500,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              const Divider(color: Colors.white12, height: 1),
+              Divider(color: theme.dividerColor, height: 1),
               const SizedBox(height: 16),
 
               // Main 2-Column Split View
@@ -96,7 +101,8 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                             margin: const EdgeInsets.only(bottom: 8),
                             child: Material(
                               color: isSelected
-                                  ? Colors.cyanAccent.withValues(alpha: 0.15)
+                                  ? theme.colorScheme.primary
+                                      .withValues(alpha: 0.15)
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                               clipBehavior: Clip.antiAlias,
@@ -104,7 +110,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: isSelected
-                                        ? Colors.cyanAccent
+                                        ? theme.colorScheme.primary
                                         : Colors.transparent,
                                     width: 1.5,
                                   ),
@@ -121,8 +127,10 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                                           ? FontWeight.bold
                                           : FontWeight.w500,
                                       color: isSelected
-                                          ? Colors.cyanAccent
-                                          : Colors.grey.shade400,
+                                          ? theme.colorScheme.primary
+                                          : (isDark
+                                              ? Colors.grey.shade400
+                                              : Colors.grey.shade700),
                                     ),
                                   ),
                                   onTap: () {
@@ -139,12 +147,12 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    const VerticalDivider(color: Colors.white12, width: 1),
+                    VerticalDivider(color: theme.dividerColor, width: 1),
                     const SizedBox(width: 20),
 
                     // Right Side Dynamic Content Subpage
                     Expanded(
-                      child: _buildRightSideContent(),
+                      child: _buildRightSideContent(isDark),
                     ),
                   ],
                 ),
@@ -156,8 +164,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
     );
   }
 
-  Widget _buildRightSideContent() {
-    // Priority: Detail Page
+  Widget _buildRightSideContent(bool isDark) {
     if (_selectedWidgetForDetail != null) {
       switch (_selectedWidgetForDetail!.type) {
         case StandbyWidgetType.clock:
@@ -176,7 +183,8 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.cyanAccent),
+                icon: Icon(Icons.arrow_back,
+                    color: Theme.of(context).colorScheme.primary),
                 onPressed: () {
                   setState(() {
                     _selectedWidgetForDetail = null;
@@ -186,17 +194,16 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
               const SizedBox(height: 16),
               Text(
                 '${_selectedWidgetForDetail!.title} Settings',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                    color: isDark ? Colors.white : Colors.black87),
               ),
             ],
           );
       }
     }
 
-    // Default left navigation category selection
     switch (_selectedCategoryIndex) {
       case 0:
         return ViewsManagementPage(
@@ -217,30 +224,30 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
           },
         );
       case 1:
-        return _buildActiveListeningSection();
+        return _buildActiveListeningSection(isDark);
       case 2:
-        return _buildAppearanceSection();
+        return _buildAppearanceSection(isDark);
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildActiveListeningSection() {
+  Widget _buildActiveListeningSection(bool isDark) {
     final config = widget.activeListeningConfig;
     final isMilkdrop = config.style == ActiveListeningStyle.milkdrop;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
     return ListView(
       children: [
         SwitchListTile(
-          title: const Text('Enable Overlay',
+          title: Text('Enable Overlay',
               style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white)),
+                  fontSize: 18, fontWeight: FontWeight.bold, color: textColor)),
           subtitle: Text('Swipe down from top edge to reveal overlay',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+              style: TextStyle(fontSize: 14, color: subtitleColor)),
           value: config.isEnabled,
-          activeThumbColor: Colors.cyanAccent,
+          activeThumbColor: Theme.of(context).colorScheme.primary,
           onChanged: (val) {
             setState(() {
               config.isEnabled = val;
@@ -249,11 +256,9 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
           },
         ),
         const SizedBox(height: 12),
-        const Text('Visualizer Style',
+        Text('Visualizer Style',
             style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white)),
+                fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -264,7 +269,10 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                   child: Text('Milkdrop Waves', style: TextStyle(fontSize: 15)),
                 ),
                 selected: isMilkdrop,
-                selectedColor: Colors.cyanAccent.withValues(alpha: 0.3),
+                selectedColor: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.3),
                 onSelected: (selected) {
                   if (selected) {
                     setState(() {
@@ -283,7 +291,10 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                   child: Text('Vinyl Disc', style: TextStyle(fontSize: 15)),
                 ),
                 selected: config.style == ActiveListeningStyle.vinyl,
-                selectedColor: Colors.cyanAccent.withValues(alpha: 0.3),
+                selectedColor: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.3),
                 onSelected: (selected) {
                   if (selected) {
                     setState(() {
@@ -296,17 +307,15 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
             ),
           ],
         ),
-
-        // Milkdrop Specific Options
         if (isMilkdrop) ...[
           const SizedBox(height: 20),
-          const Divider(color: Colors.white12),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
+          Divider(color: Theme.of(context).dividerColor),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               'MILKDROP ENGINE OPTIONS',
               style: TextStyle(
-                color: Colors.cyanAccent,
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -314,15 +323,15 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
             ),
           ),
           SwitchListTile(
-            title: const Text('Show FPS Counter',
+            title: Text('Show FPS Counter',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white)),
+                    color: textColor)),
             subtitle: Text('Display real-time rendering performance',
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade400)),
+                style: TextStyle(fontSize: 13, color: subtitleColor)),
             value: config.showFPS,
-            activeThumbColor: Colors.cyanAccent,
+            activeThumbColor: Theme.of(context).colorScheme.primary,
             onChanged: (val) {
               setState(() {
                 config.showFPS = val;
@@ -334,16 +343,16 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Audio Sensitivity',
+              Text('Audio Sensitivity',
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white)),
+                      color: textColor)),
               Text('${config.sensitivity.toStringAsFixed(1)}x',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: Colors.cyanAccent)),
+                      color: Theme.of(context).colorScheme.primary)),
             ],
           ),
           Slider(
@@ -351,7 +360,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
             min: 0.5,
             max: 2.0,
             divisions: 15,
-            activeColor: Colors.cyanAccent,
+            activeColor: Theme.of(context).colorScheme.primary,
             onChanged: (val) {
               setState(() {
                 config.sensitivity = val;
@@ -360,17 +369,15 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
             },
           ),
         ],
-
-        // Vinyl Specific Options
         if (!isMilkdrop) ...[
           const SizedBox(height: 20),
-          const Divider(color: Colors.white12),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
+          Divider(color: Theme.of(context).dividerColor),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               'VINYL ENGINE OPTIONS',
               style: TextStyle(
-                color: Colors.cyanAccent,
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.2,
@@ -378,23 +385,24 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
             ),
           ),
           ListTile(
-            title: const Text('Turntable Speed',
+            title: Text('Turntable Speed',
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white)),
+                    color: textColor)),
             subtitle: Text('Standard playback rotation rate',
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade400)),
+                style: TextStyle(fontSize: 13, color: subtitleColor)),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.grey.shade900,
+                color: isDark ? Colors.grey.shade900 : Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: Colors.white24),
+                border: Border.all(color: Theme.of(context).dividerColor),
               ),
-              child: const Text('33 RPM',
+              child: Text('33 RPM',
                   style: TextStyle(
-                      color: Colors.cyanAccent, fontWeight: FontWeight.bold)),
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -402,25 +410,28 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
     );
   }
 
-  Widget _buildAppearanceSection() {
+  Widget _buildAppearanceSection(bool isDark) {
     final general = widget.generalConfig;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
     return ListView(
       children: [
         SwitchListTile(
-          title: const Text('Dark Mode Theme',
+          title: Text('Dark Mode Theme',
               style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white)),
-          subtitle: Text('Toggle high-contrast black backdrop',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+                  fontSize: 18, fontWeight: FontWeight.bold, color: textColor)),
+          subtitle: Text(
+            isDark ? 'Dark background enabled' : 'Light background enabled',
+            style: TextStyle(fontSize: 14, color: subtitleColor),
+          ),
           value: general.themeMode == AppThemeMode.dark,
-          activeThumbColor: Colors.cyanAccent,
+          activeThumbColor: Theme.of(context).colorScheme.primary,
           onChanged: (val) {
             setState(() {
               general.themeMode = val ? AppThemeMode.dark : AppThemeMode.light;
             });
+            // Propagate theme update up to StandbyView to trigger full App re-theme
             widget.onUpdateConfig();
           },
         ),
