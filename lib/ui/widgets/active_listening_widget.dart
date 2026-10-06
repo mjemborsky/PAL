@@ -54,33 +54,33 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
           ),
         ),
         Positioned(
-          left: 20,
-          bottom: 24,
+          left: 32,
+          bottom: 28,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   const Icon(Icons.graphic_eq,
-                      color: Colors.cyanAccent, size: 18),
-                  const SizedBox(width: 8),
+                      color: Colors.cyanAccent, size: 24),
+                  const SizedBox(width: 10),
                   Text(
                     'MILKDROP VISUALIZER',
                     style: TextStyle(
                       color: Colors.cyanAccent.withValues(alpha: 0.8),
-                      fontSize: 11,
-                      letterSpacing: 2,
+                      fontSize: 14,
+                      letterSpacing: 2.5,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               const Text(
                 'Hypnotic Ambient Stream',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -90,18 +90,19 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
         if (widget.config.showFPS)
           Positioned(
             top: 24,
-            left: 20,
+            left: 32,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.black54,
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(6),
               ),
               child: const Text(
                 '60 FPS',
                 style: TextStyle(
                     color: Colors.greenAccent,
-                    fontSize: 10,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
                     fontFamily: 'monospace'),
               ),
             ),
@@ -115,112 +116,144 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
         widget.config.rotateVinyl ? animValue * 2 * math.pi : 0.0;
 
     return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 24.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 12),
-          // Centered Vinyl Disc for 720x720 layout
-          Transform.rotate(
-            angle: rotationAngle,
-            child: Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey.shade900,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.8),
-                    blurRadius: 16,
-                    spreadRadius: 4,
+          // Left Column: Larger Vinyl Disc
+          Expanded(
+            flex: 5,
+            child: Center(
+              child: Transform.rotate(
+                angle: rotationAngle,
+                child: Container(
+                  width: 310,
+                  height: 310,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey.shade900,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.8),
+                        blurRadius: 20,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                    border: Border.all(color: Colors.white10, width: 3),
                   ),
-                ],
-                border: Border.all(color: Colors.white10, width: 2),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 240,
+                        height: 240,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white12, width: 1.5),
+                        ),
+                      ),
+                      Container(
+                        width: 170,
+                        height: 170,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white12, width: 1.5),
+                        ),
+                      ),
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.cyanAccent,
+                        ),
+                        child: const Icon(
+                          Icons.album,
+                          color: Colors.black87,
+                          size: 60,
+                        ),
+                      ),
+                      Container(
+                        width: 16,
+                        height: 16,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: 170,
-                    height: 170,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white12, width: 1),
-                    ),
-                  ),
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white12, width: 1),
-                    ),
-                  ),
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.cyanAccent,
-                    ),
-                    child: const Icon(
-                      Icons.album,
-                      color: Colors.black87,
-                      size: 48,
-                    ),
-                  ),
-                  Container(
-                    width: 14,
-                    height: 14,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
-          const SizedBox(height: 24),
-          // Metadata block
-          const Text(
-            'Resonance',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'HOME • Odyssey',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade400,
-            ),
-          ),
-          if (widget.config.showProgressBar) ...[
-            const SizedBox(height: 18),
-            LinearProgressIndicator(
-              value: (animValue * 3) % 1.0,
-              backgroundColor: Colors.white12,
-              color: Colors.cyanAccent,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const SizedBox(width: 36),
+          // Right Column: Scaled Track Details
+          Expanded(
+            flex: 6,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('1:42',
-                    style:
-                        TextStyle(fontSize: 11, color: Colors.grey.shade500)),
-                Text('3:32',
-                    style:
-                        TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                Row(
+                  children: [
+                    const Icon(Icons.music_note,
+                        color: Colors.cyanAccent, size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      'NOW PLAYING',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.5,
+                        color: Colors.cyanAccent.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Resonance',
+                  style: TextStyle(
+                    fontSize: 42,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'HOME • Odyssey',
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Colors.grey.shade400,
+                  ),
+                ),
+                if (widget.config.showProgressBar) ...[
+                  const SizedBox(height: 28),
+                  LinearProgressIndicator(
+                    value: (animValue * 3) % 1.0,
+                    backgroundColor: Colors.white12,
+                    color: Colors.cyanAccent,
+                    borderRadius: BorderRadius.circular(4),
+                    minHeight: 8,
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('1:42',
+                          style: TextStyle(
+                              fontSize: 15, color: Colors.grey.shade500)),
+                      Text('3:32',
+                          style: TextStyle(
+                              fontSize: 15, color: Colors.grey.shade500)),
+                    ],
+                  ),
+                ],
               ],
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -236,11 +269,11 @@ class _MilkdropPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width, size.height) * 0.35;
+    final radius = math.min(size.width, size.height) * 0.45;
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0;
+      ..strokeWidth = 3.5;
 
     for (int i = 0; i < 5; i++) {
       final progress = (animValue + (i * 0.2)) % 1.0;
@@ -259,7 +292,7 @@ class _MilkdropPainter extends CustomPainter {
       for (int j = 0; j <= points; j++) {
         final angle = (j / points) * 2 * math.pi;
         final distortion =
-            math.sin(angle * 6 + animValue * 10 + i) * (12 * sensitivity);
+            math.sin(angle * 6 + animValue * 10 + i) * (14 * sensitivity);
         final r = currentRadius + distortion;
         final x = center.dx + r * math.cos(angle);
         final y = center.dy + r * math.sin(angle);

@@ -133,6 +133,7 @@ class _StandbyViewState extends State<StandbyView> {
           );
 
     final appBackgroundColor = isDark ? Colors.black : const Color(0xFFAFAFAF);
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Theme(
       data: themeData,
@@ -140,12 +141,12 @@ class _StandbyViewState extends State<StandbyView> {
         backgroundColor: appBackgroundColor,
         body: Stack(
           children: [
-            // Main Standby Carousel View
+            // Main Standby Widescreen Carousel
             GestureDetector(
               onVerticalDragUpdate: (details) {
                 if (_activeListeningConfig.isEnabled &&
                     details.delta.dy > 8 &&
-                    details.globalPosition.dy < 120) {
+                    details.globalPosition.dy < 90) {
                   setState(() {
                     _showActiveListeningOverlay = true;
                   });
@@ -168,18 +169,18 @@ class _StandbyViewState extends State<StandbyView> {
                 },
               ),
             ),
-            // Pull down handle hint
+            // Pull down handle hint optimized for 800x480
             if (_activeListeningConfig.isEnabled)
               Positioned(
-                top: 6,
+                top: 4,
                 left: 0,
                 right: 0,
                 child: Center(
                   child: Container(
-                    width: 36,
-                    height: 4,
+                    width: 42,
+                    height: 3,
                     decoration: BoxDecoration(
-                      color: isDark ? Colors.white24 : Colors.black26,
+                      color: isDark ? Colors.white30 : Colors.black26,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -190,12 +191,10 @@ class _StandbyViewState extends State<StandbyView> {
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOut,
-                top: _showActiveListeningOverlay
-                    ? 0
-                    : -MediaQuery.of(context).size.height,
+                top: _showActiveListeningOverlay ? 0 : -screenHeight,
                 left: 0,
                 right: 0,
-                height: MediaQuery.of(context).size.height,
+                height: screenHeight,
                 child: GestureDetector(
                   onVerticalDragUpdate: (details) {
                     if (details.delta.dy < -8) {
@@ -210,11 +209,11 @@ class _StandbyViewState extends State<StandbyView> {
                       children: [
                         ActiveListeningWidget(config: _activeListeningConfig),
                         Positioned(
-                          top: 16,
-                          right: 16,
+                          top: 10,
+                          right: 12,
                           child: IconButton(
                             icon: const Icon(Icons.keyboard_arrow_up,
-                                color: Colors.white70, size: 32),
+                                color: Colors.white70, size: 28),
                             onPressed: () {
                               setState(() {
                                 _showActiveListeningOverlay = false;
@@ -250,9 +249,9 @@ class _StandbyViewState extends State<StandbyView> {
           Text(
             'P A L',
             style: TextStyle(
-              fontSize: 56,
+              fontSize: 48,
               fontWeight: FontWeight.w900,
-              letterSpacing: 14,
+              letterSpacing: 16,
               color: Colors.cyanAccent,
               shadows: [
                 Shadow(
@@ -262,19 +261,19 @@ class _StandbyViewState extends State<StandbyView> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             'Portable Ambient Link',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 11,
               letterSpacing: 4,
               color: Colors.grey.shade500,
             ),
           ),
-          const SizedBox(height: 48),
+          const SizedBox(height: 32),
           const SizedBox(
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               color: Colors.cyanAccent,

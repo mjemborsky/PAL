@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/widget_config.dart';
 
-/// Weather Placeholder with Dynamic Config
+/// Weather Display scaled directly for 800x480
 class WeatherWidget extends StatelessWidget {
   final StandbyWidgetConfig config;
 
@@ -12,22 +12,36 @@ class WeatherWidget extends StatelessWidget {
     final tempString = config.useCelsius ? '22°C' : '72°F';
 
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.wb_sunny_outlined,
-              size: 72, color: Colors.amberAccent),
-          const SizedBox(height: 12),
-          Text(
-            tempString,
-            style: const TextStyle(
-                fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          const Text(
-            'Partly Cloudy • Saint Paul',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 48.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.wb_sunny_outlined,
+                size: 140, color: Colors.amberAccent),
+            const SizedBox(width: 48),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  tempString,
+                  style: const TextStyle(
+                      fontSize: 88,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.0),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Partly Cloudy • Saint Paul',
+                  style: TextStyle(fontSize: 26, color: Colors.grey),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

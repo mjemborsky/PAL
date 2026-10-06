@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../models/widget_config.dart';
-import 'active_listening_settings_page.dart';
-import 'general_settings_page.dart';
-import 'view_detail_page.dart';
-import 'views_management_page.dart';
-
-enum SettingsSubScreen { root, general, views, viewDetail, activeListening }
 
 class MainSettingsWidget extends StatefulWidget {
   final List<StandbyWidgetConfig> allWidgets;
@@ -31,222 +25,373 @@ class MainSettingsWidget extends StatefulWidget {
   State<MainSettingsWidget> createState() => _MainSettingsWidgetState();
 }
 
-class _MainSettingsWidgetState extends State<MainSettingsWidget>
-    with AutomaticKeepAliveClientMixin {
-  SettingsSubScreen _currentSubScreen = SettingsSubScreen.root;
-  String? _selectedWidgetId;
+class _MainSettingsWidgetState extends State<MainSettingsWidget> {
+  int _selectedCategoryIndex = 0;
 
-  @override
-  bool get wantKeepAlive => true;
+  final List<String> _categories = [
+    'Widgets & Order',
+    'Active Listening',
+    'Appearance & System',
+  ];
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 150),
-        child: _buildCurrentSubScreen(),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Settings Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.settings, color: Colors.cyanAccent, size: 28),
+                      SizedBox(width: 12),
+                      Text(
+                        'SETTINGS',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2.0,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    'PAL v1.0',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: Colors.white12, height: 1),
+              const SizedBox(height: 16),
+
+              // 2-Column Settings View
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Column: Navigation Tabs
+                    SizedBox(
+                      width: 220,
+                      child: ListView.builder(
+                        itemCount: _categories.length,
+                        itemBuilder: (context, index) {
+                          final isSelected = _selectedCategoryIndex == index;
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: Material(
+                              color: isSelected
+                                  ? Colors.cyanAccent.withValues(alpha: 0.15)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              clipBehavior: Clip.antiAlias,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Colors.cyanAccent
+                                        : Colors.transparent,
+                                    width: 1.5,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 4),
+                                  title: Text(
+                                    _categories[index],
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                      color: isSelected
+                                          ? Colors.cyanAccent
+                                          : Colors.grey.shade400,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedCategoryIndex = index;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    const VerticalDivider(color: Colors.white12, width: 1),
+                    const SizedBox(width: 20),
+
+                    // Right Column: Tab Details / Options
+                    Expanded(
+                      child: _buildCategoryContent(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildCurrentSubScreen() {
-    switch (_currentSubScreen) {
-      case SettingsSubScreen.root:
-        return _buildRootSettingsMenu();
-
-      case SettingsSubScreen.general:
-        return GeneralSettingsPage(
-          config: widget.generalConfig,
-          onBack: () {
-            setState(() {
-              _currentSubScreen = SettingsSubScreen.root;
-            });
-          },
-          onUpdateConfig: () {
-            setState(() {});
-            widget.onUpdateConfig();
-          },
-        );
-
-      case SettingsSubScreen.views:
-        return ViewsManagementPage(
-          allWidgets: widget.allWidgets,
-          onReorder: widget.onReorder,
-          onToggle: widget.onToggle,
-          onAddWidget: widget.onAddWidget,
-          onSelectWidget: (id) {
-            setState(() {
-              _selectedWidgetId = id;
-              _currentSubScreen = SettingsSubScreen.viewDetail;
-            });
-          },
-          onBack: () {
-            setState(() {
-              _currentSubScreen = SettingsSubScreen.root;
-            });
-          },
-        );
-
-      case SettingsSubScreen.viewDetail:
-        final selectedWidget = widget.allWidgets.firstWhere(
-          (w) => w.id == _selectedWidgetId,
-          orElse: () => widget.allWidgets.first,
-        );
-
-        return ViewDetailPage(
-          item: selectedWidget,
-          onBack: () {
-            setState(() {
-              _currentSubScreen = SettingsSubScreen.views;
-            });
-          },
-          onUpdateConfig: () {
-            setState(() {});
-            widget.onUpdateConfig();
-          },
-        );
-
-      case SettingsSubScreen.activeListening:
-        return ActiveListeningSettingsPage(
-          config: widget.activeListeningConfig,
-          onBack: () {
-            setState(() {
-              _currentSubScreen = SettingsSubScreen.root;
-            });
-          },
-          onUpdateConfig: () {
-            setState(() {});
-            widget.onUpdateConfig();
-          },
-        );
+  Widget _buildCategoryContent() {
+    switch (_selectedCategoryIndex) {
+      case 0:
+        return _buildWidgetsAndOrderSection();
+      case 1:
+        return _buildActiveListeningSection();
+      case 2:
+        return _buildAppearanceSection();
+      default:
+        return const SizedBox.shrink();
     }
   }
 
-  Widget _buildRootSettingsMenu() {
-    final isDark = widget.generalConfig.themeMode == AppThemeMode.dark;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final subtitleColor = isDark ? Colors.grey : Colors.grey.shade600;
-    final cardBgColor = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
-    final primaryAccent = isDark ? Colors.cyanAccent : Colors.teal;
-
+  // Section 1: Reorder & Enable/Disable Widgets
+  Widget _buildWidgetsAndOrderSection() {
     return Column(
-      key: const ValueKey('RootSettings'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(Icons.settings, color: primaryAccent, size: 26),
-            const SizedBox(width: 10),
-            Text(
-              'Settings',
+            const Text(
+              'Active Widgets',
               style: TextStyle(
-                fontSize: 22,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            PopupMenuButton<StandbyWidgetType>(
+              icon: const Icon(Icons.add_circle_outline,
+                  color: Colors.cyanAccent, size: 28),
+              onSelected: (type) => widget.onAddWidget(type),
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: StandbyWidgetType.clock,
+                  child:
+                      Text('Add Clock Widget', style: TextStyle(fontSize: 16)),
+                ),
+                const PopupMenuItem(
+                  value: StandbyWidgetType.weather,
+                  child: Text('Add Weather Widget',
+                      style: TextStyle(fontSize: 16)),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Expanded(
+          child: ReorderableListView.builder(
+            itemCount: widget.allWidgets.length,
+            onReorder: widget.onReorder,
+            itemBuilder: (context, index) {
+              final item = widget.allWidgets[index];
+              if (item.type == StandbyWidgetType.settings) {
+                return const SizedBox.shrink(key: ValueKey('settings_skip'));
+              }
+
+              return Container(
+                key: ValueKey(item.id),
+                margin: const EdgeInsets.only(bottom: 10),
+                child: Material(
+                  color: Colors.grey.shade900,
+                  borderRadius: BorderRadius.circular(8),
+                  clipBehavior: Clip.antiAlias,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
+                      leading: Switch(
+                        value: item.isEnabled,
+                        activeColor: Colors.cyanAccent,
+                        onChanged: (val) => widget.onToggle(item.id, val),
+                      ),
+                      title: Text(
+                        item.title,
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      subtitle: Text(
+                        item.type == StandbyWidgetType.clock
+                            ? (item.isAnalog ? 'Analog Mode' : 'Digital Mode')
+                            : 'Weather Display',
+                        style: TextStyle(
+                            fontSize: 14, color: Colors.grey.shade400),
+                      ),
+                      trailing: const Icon(Icons.drag_handle,
+                          color: Colors.white38, size: 28),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Section 2: Active Listening Overlay Preferences
+  Widget _buildActiveListeningSection() {
+    final config = widget.activeListeningConfig;
+
+    return ListView(
+      children: [
+        SwitchListTile(
+          title: const Text('Enable Overlay',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white)),
+          subtitle: Text('Swipe down from top edge to reveal overlay',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+          value: config.isEnabled,
+          activeColor: Colors.cyanAccent,
+          onChanged: (val) {
+            setState(() {
+              config.isEnabled = val;
+            });
+            widget.onUpdateConfig();
+          },
+        ),
+        const SizedBox(height: 12),
+        const Text('Visualizer Style',
+            style: TextStyle(
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: textColor,
+                color: Colors.white)),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: ChoiceChip(
+                label: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text('Milkdrop Waves', style: TextStyle(fontSize: 15)),
+                ),
+                selected: config.style == ActiveListeningStyle.milkdrop,
+                selectedColor: Colors.cyanAccent.withValues(alpha: 0.3),
+                onSelected: (selected) {
+                  if (selected) {
+                    setState(() {
+                      config.style = ActiveListeningStyle.milkdrop;
+                    });
+                    widget.onUpdateConfig();
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ChoiceChip(
+                label: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text('Vinyl Disc', style: TextStyle(fontSize: 15)),
+                ),
+                selected: config.style == ActiveListeningStyle.vinyl,
+                selectedColor: Colors.cyanAccent.withValues(alpha: 0.3),
+                onSelected: (selected) {
+                  if (selected) {
+                    setState(() {
+                      config.style = ActiveListeningStyle.vinyl;
+                    });
+                    widget.onUpdateConfig();
+                  }
+                },
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        Divider(color: isDark ? Colors.white24 : Colors.black12),
-        Card(
-          color: cardBgColor,
-          elevation: isDark ? 0 : 1,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            leading: Icon(
-              Icons.dashboard_customize,
-              color: primaryAccent,
-            ),
-            title: Text(
-              'Views',
-              style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
-            ),
-            subtitle: Text(
-              'Add, reorder, toggle, and customize views',
-              style: TextStyle(color: subtitleColor, fontSize: 11),
-            ),
-            trailing: Icon(Icons.chevron_right,
-                color: isDark ? Colors.white70 : Colors.black54),
-            onTap: () {
-              setState(() {
-                _currentSubScreen = SettingsSubScreen.views;
-              });
-            },
-          ),
+        const SizedBox(height: 16),
+        const Text('Audio Sensitivity',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white)),
+        Slider(
+          value: config.sensitivity,
+          min: 0.5,
+          max: 2.0,
+          divisions: 15,
+          activeColor: Colors.cyanAccent,
+          label: '${config.sensitivity.toStringAsFixed(1)}x',
+          onChanged: (val) {
+            setState(() {
+              config.sensitivity = val;
+            });
+            widget.onUpdateConfig();
+          },
         ),
-        const SizedBox(height: 8),
-        Card(
-          color: cardBgColor,
-          elevation: isDark ? 0 : 1,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            leading: Icon(
-              Icons.graphic_eq,
-              color: primaryAccent,
-            ),
-            title: Text(
-              'Active Listening Overlay',
-              style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
-            ),
-            subtitle: Text(
-              widget.activeListeningConfig.isEnabled
-                  ? 'Active (${widget.activeListeningConfig.style.name.toUpperCase()})'
-                  : 'Disabled',
+      ],
+    );
+  }
+
+  // Section 3: Theme & System Unit Toggles
+  Widget _buildAppearanceSection() {
+    final general = widget.generalConfig;
+
+    return ListView(
+      children: [
+        SwitchListTile(
+          title: const Text('Dark Mode Theme',
               style: TextStyle(
-                color: widget.activeListeningConfig.isEnabled
-                    ? primaryAccent
-                    : subtitleColor,
-                fontSize: 11,
-              ),
-            ),
-            trailing: Icon(Icons.chevron_right,
-                color: isDark ? Colors.white70 : Colors.black54),
-            onTap: () {
-              setState(() {
-                _currentSubScreen = SettingsSubScreen.activeListening;
-              });
-            },
-          ),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white)),
+          subtitle: Text('Toggle high-contrast black backdrop',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+          value: general.themeMode == AppThemeMode.dark,
+          activeColor: Colors.cyanAccent,
+          onChanged: (val) {
+            setState(() {
+              general.themeMode = val ? AppThemeMode.dark : AppThemeMode.light;
+            });
+            widget.onUpdateConfig();
+          },
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Divider(
-              color: isDark ? Colors.white12 : Colors.black12, height: 1),
-        ),
-        Card(
-          color: cardBgColor,
-          elevation: isDark ? 0 : 1,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ListTile(
-            leading: Icon(
-              Icons.tune,
-              color: primaryAccent,
-            ),
-            title: Text(
-              'General',
-              style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
-            ),
-            subtitle: Text(
-              'Theme: ${isDark ? "DARK" : "LIGHT"}',
-              style: TextStyle(color: subtitleColor, fontSize: 11),
-            ),
-            trailing: Icon(Icons.chevron_right,
-                color: isDark ? Colors.white70 : Colors.black54),
-            onTap: () {
-              setState(() {
-                _currentSubScreen = SettingsSubScreen.general;
-              });
-            },
-          ),
+        const Divider(color: Colors.white12, height: 24),
+        SwitchListTile(
+          title: const Text('Show FPS Counter',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white)),
+          subtitle: Text('Display real-time rendering statistics',
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
+          value: widget.activeListeningConfig.showFPS,
+          activeColor: Colors.cyanAccent,
+          onChanged: (val) {
+            setState(() {
+              widget.activeListeningConfig.showFPS = val;
+            });
+            widget.onUpdateConfig();
+          },
         ),
       ],
     );

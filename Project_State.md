@@ -86,25 +86,61 @@ flutter run -d edge --no-pub
 
 
 
+ASCII Folder Structure
 
 
-lib/
 
-└── ui/
+PAL/
 
-&#x20;   ├── standby\_view.dart          # Main Standby container \& PageView controller
+├── android/
 
-&#x20;   ├── settings/
+├── build/
 
-&#x20;   │   └── main\_settings\_widget.dart  # Settings sub-page navigation \& views manager
+├── ios/
 
-&#x20;   └── widgets/
+├── lib/
 
-&#x20;       ├── clock\_widget.dart      # ClockWidget \& AnalogClockPainter
+│   ├── models/
 
-&#x20;       └── weather\_widget.dart    # WeatherWidget placeholder
+│   │   └── widget\_config.dart
 
+│   ├── services/
 
+│   │   └── mock\_audio\_service.dart
+
+│   ├── ui/
+
+│   │   ├── settings/
+
+│   │   │   ├── active\_listening\_settings\_page.dart
+
+│   │   │   ├── general\_settings\_page.dart
+
+│   │   │   ├── main\_settings\_widget.dart
+
+│   │   │   ├── view\_detail\_page.dart
+
+│   │   │   └── views\_management\_page.dart
+
+│   │   ├── widgets/
+
+│   │   │   ├── active\_listening\_widget.dart
+
+│   │   │   ├── clock\_widget.dart
+
+│   │   │   └── weather\_widget.dart
+
+│   │   └── standby\_view.dart
+
+│   └── main.dart
+
+├── linux/
+
+├── macos/
+
+└── test/
+
+&#x20;   └── widget\_test.dart
 
 
 

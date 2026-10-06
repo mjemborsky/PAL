@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/widget_config.dart';
 
-/// Clock Display with Analog & Digital modes
+/// Clock Display with Analog & Digital modes optimized for 800x480
 class ClockWidget extends StatelessWidget {
   final StandbyWidgetConfig config;
 
@@ -18,27 +18,45 @@ class ClockWidget extends StatelessWidget {
         final now = snapshot.data ?? DateTime.now();
 
         return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (config.isAnalog) ...[
-                SizedBox(
-                  width: 220,
-                  height: 220,
-                  child: CustomPaint(
-                    painter: AnalogClockPainter(
-                        now: now, showSeconds: config.showSeconds),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  DateFormat('EEEE, MMMM d').format(now),
-                  style: TextStyle(fontSize: 18, color: Colors.grey.shade400),
-                ),
-              ] else ...[
-                _buildDigitalClock(now),
-              ],
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: config.isAnalog
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 280,
+                        height: 280,
+                        child: CustomPaint(
+                          painter: AnalogClockPainter(
+                              now: now, showSeconds: config.showSeconds),
+                        ),
+                      ),
+                      const SizedBox(width: 48),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat('hh:mm').format(now),
+                            style: const TextStyle(
+                              fontSize: 88,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              height: 1.0,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            DateFormat('EEEE, MMMM d').format(now),
+                            style: TextStyle(
+                                fontSize: 26, color: Colors.grey.shade400),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                : _buildDigitalClock(now),
           ),
         );
       },
@@ -56,6 +74,7 @@ class ClockWidget extends StatelessWidget {
     final dateString = DateFormat('EEEE, MMMM d').format(now);
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -65,27 +84,31 @@ class ClockWidget extends StatelessWidget {
             Text(
               timeString,
               style: const TextStyle(
-                fontSize: 72,
+                fontSize: 120,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
+                letterSpacing: -2,
               ),
             ),
             if (periodString.isNotEmpty) ...[
-              const SizedBox(width: 8),
+              const SizedBox(width: 16),
               Text(
                 periodString,
                 style: const TextStyle(
-                  fontSize: 24,
+                  fontSize: 36,
+                  fontWeight: FontWeight.w600,
                   color: Colors.cyanAccent,
                 ),
               ),
             ],
           ],
         ),
+        const SizedBox(height: 8),
         Text(
           dateString,
           style: TextStyle(
-            fontSize: 18,
+            fontSize: 28,
+            letterSpacing: 1.5,
             color: Colors.grey.shade400,
           ),
         ),
@@ -94,7 +117,7 @@ class ClockWidget extends StatelessWidget {
   }
 }
 
-/// CustomPainter drawing the analog clock face, tick marks, and rotating hands
+/// CustomPainter drawing the analog clock face
 class AnalogClockPainter extends CustomPainter {
   final DateTime now;
   final bool showSeconds;
@@ -113,15 +136,15 @@ class AnalogClockPainter extends CustomPainter {
     canvas.drawCircle(center, radius, dialPaint);
 
     final borderPaint = Paint()
-      ..color = Colors.cyanAccent.withValues(alpha: 0.5)
+      ..color = Colors.cyanAccent.withValues(alpha: 0.6)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
+      ..strokeWidth = 4.0;
     canvas.drawCircle(center, radius, borderPaint);
 
     // Tick Marks
     final tickPaint = Paint()
       ..color = Colors.white54
-      ..strokeWidth = 2;
+      ..strokeWidth = 2.5;
 
     for (int i = 0; i < 12; i++) {
       final angle = i * 30 * (pi / 180);
@@ -138,7 +161,7 @@ class AnalogClockPainter extends CustomPainter {
         ((now.hour % 12) + now.minute / 60) * 30 * (pi / 180) - (pi / 2);
     final hourHandPaint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 6
+      ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
       center,
@@ -152,7 +175,7 @@ class AnalogClockPainter extends CustomPainter {
         (now.minute + now.second / 60) * 6 * (pi / 180) - (pi / 2);
     final minuteHandPaint = Paint()
       ..color = Colors.white70
-      ..strokeWidth = 4
+      ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
       center,
@@ -166,7 +189,7 @@ class AnalogClockPainter extends CustomPainter {
       final secondAngle = now.second * 6 * (pi / 180) - (pi / 2);
       final secondHandPaint = Paint()
         ..color = Colors.cyanAccent
-        ..strokeWidth = 2
+        ..strokeWidth = 2.5
         ..strokeCap = StrokeCap.round;
       canvas.drawLine(
         center,
@@ -178,7 +201,7 @@ class AnalogClockPainter extends CustomPainter {
 
     // Center Pivot Pin
     final centerPinPaint = Paint()..color = Colors.cyanAccent;
-    canvas.drawCircle(center, 5, centerPinPaint);
+    canvas.drawCircle(center, 6, centerPinPaint);
   }
 
   @override
