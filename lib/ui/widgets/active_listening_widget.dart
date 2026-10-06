@@ -4,8 +4,15 @@ import '../../models/widget_config.dart';
 
 class ActiveListeningWidget extends StatefulWidget {
   final ActiveListeningConfig config;
+  final VoidCallback? onDismiss;
+  final VoidCallback? onReveal;
 
-  const ActiveListeningWidget({super.key, required this.config});
+  const ActiveListeningWidget({
+    super.key,
+    required this.config,
+    this.onDismiss,
+    this.onReveal,
+  });
 
   @override
   State<ActiveListeningWidget> createState() => _ActiveListeningWidgetState();
@@ -30,16 +37,36 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
     super.dispose();
   }
 
+  void _handleVerticalDragEnd(DragEndDetails details) {
+    if (!widget.config.isEnabled) return;
+
+    final velocityY = details.primaryVelocity ?? 0.0;
+    const velocityThreshold = 200.0;
+
+    // Direct swipe direction detection regardless of touch coordinates
+    if (velocityY < -velocityThreshold) {
+      // Swiped UP -> Hide visualizer
+      widget.onDismiss?.call();
+    } else if (velocityY > velocityThreshold) {
+      // Swiped DOWN -> Show visualizer
+      widget.onReveal?.call();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        if (widget.config.style == ActiveListeningStyle.vinyl) {
-          return _buildVinylView(_controller.value);
-        }
-        return _buildMilkdropView(_controller.value);
-      },
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onVerticalDragEnd: _handleVerticalDragEnd,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          if (widget.config.style == ActiveListeningStyle.vinyl) {
+            return _buildVinylView(_controller.value);
+          }
+          return _buildMilkdropView(_controller.value);
+        },
+      ),
     );
   }
 
