@@ -5,7 +5,7 @@ class ViewsManagementPage extends StatelessWidget {
   final List<StandbyWidgetConfig> allWidgets;
   final Function(int oldIndex, int newIndex) onReorder;
   final Function(String id, bool enabled) onToggle;
-  final Function(String id) onSelectWidget;
+  final Function(StandbyWidgetConfig widget) onSelectWidget;
   final Function(StandbyWidgetType type) onAddWidget;
   final VoidCallback onBack;
 
@@ -127,7 +127,7 @@ class ViewsManagementPage extends StatelessWidget {
                 child: ListTile(
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                  onTap: isSettings ? null : () => onSelectWidget(item.id),
+                  onTap: isSettings ? null : () => onSelectWidget(item),
                   leading: Icon(
                     _getWidgetIcon(item.type),
                     color: item.isEnabled ? Colors.cyanAccent : Colors.grey,

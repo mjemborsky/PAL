@@ -44,6 +44,7 @@ class StandbyWidgetConfig {
   bool isAnalog;
   bool use24HourTime;
   bool showSeconds;
+  bool showCalendar;
 
   // Weather options
   bool useCelsius;
@@ -56,6 +57,7 @@ class StandbyWidgetConfig {
     this.isAnalog = true,
     this.use24HourTime = false,
     this.showSeconds = true,
+    this.showCalendar = true,
     this.useCelsius = false,
   });
 }

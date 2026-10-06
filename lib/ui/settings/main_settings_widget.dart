@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/widget_config.dart';
+import 'views_management_page.dart';
+import 'details/clock_detail_widget.dart';
 
 class MainSettingsWidget extends StatefulWidget {
   final List<StandbyWidgetConfig> allWidgets;
@@ -27,9 +29,10 @@ class MainSettingsWidget extends StatefulWidget {
 
 class _MainSettingsWidgetState extends State<MainSettingsWidget> {
   int _selectedCategoryIndex = 0;
+  StandbyWidgetConfig? _selectedWidgetForDetail;
 
   final List<String> _categories = [
-    'Widgets & Order',
+    'Views Management',
     'Active Listening',
     'Appearance & System',
   ];
@@ -44,7 +47,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Settings Header
+              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -77,12 +80,12 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
               const Divider(color: Colors.white12, height: 1),
               const SizedBox(height: 16),
 
-              // 2-Column Settings View
+              // Main 2-Column Split View
               Expanded(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Left Column: Navigation Tabs
+                    // Left Side Categories Navigation
                     SizedBox(
                       width: 220,
                       child: ListView.builder(
@@ -125,6 +128,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                                   onTap: () {
                                     setState(() {
                                       _selectedCategoryIndex = index;
+                                      _selectedWidgetForDetail = null;
                                     });
                                   },
                                 ),
@@ -138,9 +142,9 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                     const VerticalDivider(color: Colors.white12, width: 1),
                     const SizedBox(width: 20),
 
-                    // Right Column: Tab Details / Options
+                    // Right Side Dynamic Content Subpage
                     Expanded(
-                      child: _buildCategoryContent(),
+                      child: _buildRightSideContent(),
                     ),
                   ],
                 ),
@@ -152,10 +156,66 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
     );
   }
 
-  Widget _buildCategoryContent() {
+  Widget _buildRightSideContent() {
+    // Priority: Detail Page
+    if (_selectedWidgetForDetail != null) {
+      switch (_selectedWidgetForDetail!.type) {
+        case StandbyWidgetType.clock:
+          return ClockDetailWidget(
+            config: _selectedWidgetForDetail!,
+            onBack: () {
+              setState(() {
+                _selectedWidgetForDetail = null;
+              });
+            },
+            onUpdateConfig: widget.onUpdateConfig,
+          );
+        case StandbyWidgetType.weather:
+        case StandbyWidgetType.settings:
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.cyanAccent),
+                onPressed: () {
+                  setState(() {
+                    _selectedWidgetForDetail = null;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '${_selectedWidgetForDetail!.title} Settings',
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            ],
+          );
+      }
+    }
+
+    // Default left navigation category selection
     switch (_selectedCategoryIndex) {
       case 0:
-        return _buildWidgetsAndOrderSection();
+        return ViewsManagementPage(
+          allWidgets: widget.allWidgets,
+          onReorder: widget.onReorder,
+          onToggle: widget.onToggle,
+          onAddWidget: widget.onAddWidget,
+          onSelectWidget: (selectedWidget) {
+            setState(() {
+              _selectedWidgetForDetail = selectedWidget;
+            });
+          },
+          onBack: () {
+            setState(() {
+              _selectedCategoryIndex = 0;
+              _selectedWidgetForDetail = null;
+            });
+          },
+        );
       case 1:
         return _buildActiveListeningSection();
       case 2:
@@ -165,99 +225,6 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
     }
   }
 
-  // Section 1: Reorder & Enable/Disable Widgets
-  Widget _buildWidgetsAndOrderSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Active Widgets',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
-            ),
-            PopupMenuButton<StandbyWidgetType>(
-              icon: const Icon(Icons.add_circle_outline,
-                  color: Colors.cyanAccent, size: 28),
-              onSelected: (type) => widget.onAddWidget(type),
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: StandbyWidgetType.clock,
-                  child:
-                      Text('Add Clock Widget', style: TextStyle(fontSize: 16)),
-                ),
-                const PopupMenuItem(
-                  value: StandbyWidgetType.weather,
-                  child: Text('Add Weather Widget',
-                      style: TextStyle(fontSize: 16)),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Expanded(
-          child: ReorderableListView.builder(
-            itemCount: widget.allWidgets.length,
-            onReorder: widget.onReorder,
-            itemBuilder: (context, index) {
-              final item = widget.allWidgets[index];
-              if (item.type == StandbyWidgetType.settings) {
-                return const SizedBox.shrink(key: ValueKey('settings_skip'));
-              }
-
-              return Container(
-                key: ValueKey(item.id),
-                margin: const EdgeInsets.only(bottom: 10),
-                child: Material(
-                  color: Colors.grey.shade900,
-                  borderRadius: BorderRadius.circular(8),
-                  clipBehavior: Clip.antiAlias,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.white10),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 4),
-                      leading: Switch(
-                        value: item.isEnabled,
-                        activeColor: Colors.cyanAccent,
-                        onChanged: (val) => widget.onToggle(item.id, val),
-                      ),
-                      title: Text(
-                        item.title,
-                        style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-                      subtitle: Text(
-                        item.type == StandbyWidgetType.clock
-                            ? (item.isAnalog ? 'Analog Mode' : 'Digital Mode')
-                            : 'Weather Display',
-                        style: TextStyle(
-                            fontSize: 14, color: Colors.grey.shade400),
-                      ),
-                      trailing: const Icon(Icons.drag_handle,
-                          color: Colors.white38, size: 28),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Section 2: Active Listening Overlay Preferences
   Widget _buildActiveListeningSection() {
     final config = widget.activeListeningConfig;
 
@@ -272,7 +239,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
           subtitle: Text('Swipe down from top edge to reveal overlay',
               style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
           value: config.isEnabled,
-          activeColor: Colors.cyanAccent,
+          activeThumbColor: Colors.cyanAccent,
           onChanged: (val) {
             setState(() {
               config.isEnabled = val;
@@ -352,7 +319,6 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
     );
   }
 
-  // Section 3: Theme & System Unit Toggles
   Widget _buildAppearanceSection() {
     final general = widget.generalConfig;
 
@@ -367,7 +333,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
           subtitle: Text('Toggle high-contrast black backdrop',
               style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
           value: general.themeMode == AppThemeMode.dark,
-          activeColor: Colors.cyanAccent,
+          activeThumbColor: Colors.cyanAccent,
           onChanged: (val) {
             setState(() {
               general.themeMode = val ? AppThemeMode.dark : AppThemeMode.light;
@@ -385,7 +351,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
           subtitle: Text('Display real-time rendering statistics',
               style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
           value: widget.activeListeningConfig.showFPS,
-          activeColor: Colors.cyanAccent,
+          activeThumbColor: Colors.cyanAccent,
           onChanged: (val) {
             setState(() {
               widget.activeListeningConfig.showFPS = val;
