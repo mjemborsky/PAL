@@ -23,41 +23,63 @@ class ClockWidget extends StatelessWidget {
 
         return Container(
           color: Colors.black,
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
           child: Center(
-            child: config.showCalendar
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: config.isAnalog
-                              ? _buildAnalogClockFace(now)
-                              : _buildDigitalClockFace(now),
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: Center(
-                          child: _buildCalendarDisplay(now),
-                        ),
-                      ),
-                    ],
-                  )
-                : (config.isAnalog
-                    ? _buildAnalogClockFace(now)
-                    : _buildDigitalClockFace(now)),
+            child: config.isAnalog
+                ? _buildAnalogLayout(now)
+                : _buildDigitalLayout(now),
           ),
         );
       },
     );
   }
 
+  /// Analog Mode: Side-by-Side Row layout with optional calendar on the right
+  Widget _buildAnalogLayout(DateTime now) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Center(
+            child: _buildAnalogClockFace(now),
+          ),
+        ),
+        if (config.showCalendar) ...[
+          const SizedBox(width: 16),
+          Expanded(
+            child: Center(
+              child: _buildCalendarDisplay(now, isStacked: false),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// Digital Mode: Stacked Column layout with large time and left-aligned date below
+  Widget _buildDigitalLayout(DateTime now) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildDigitalClockFace(now),
+        if (config.showCalendar) ...[
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: _buildCalendarDisplay(now, isStacked: true),
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildAnalogClockFace(DateTime now) {
     return SizedBox(
-      width: 250,
-      height: 250,
+      width: 340,
+      height: 340,
       child: CustomPaint(
         painter: AnalogClockPainter(
           now: now,
@@ -78,17 +100,18 @@ class ClockWidget extends StatelessWidget {
 
     return Row(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
         Text(
           timeString,
           style: TextStyle(
-            fontSize: config.showCalendar ? 68 : 96,
+            fontSize: config.showCalendar ? 120 : 140,
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            letterSpacing: -1,
+            letterSpacing: -2,
+            height: 1.0,
           ),
         ),
         if (periodString.isNotEmpty) ...[
@@ -96,7 +119,7 @@ class ClockWidget extends StatelessWidget {
           Text(
             periodString,
             style: TextStyle(
-              fontSize: config.showCalendar ? 24 : 32,
+              fontSize: config.showCalendar ? 38 : 44,
               fontWeight: FontWeight.w600,
               color: Colors.cyanAccent,
             ),
@@ -106,10 +129,30 @@ class ClockWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCalendarDisplay(DateTime now) {
+  Widget _buildCalendarDisplay(DateTime now, {required bool isStacked}) {
     final dayOfWeek = DateFormat('EEEE').format(now);
     final fullDate = DateFormat('MMMM d, yyyy').format(now);
 
+    if (isStacked) {
+      // Left-aligned compact date under digital clock
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$dayOfWeek, $fullDate'.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: Colors.cyanAccent,
+              letterSpacing: 1.5,
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Detailed layout next to analog clock face
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +160,7 @@ class ClockWidget extends StatelessWidget {
         Text(
           dayOfWeek.toUpperCase(),
           style: const TextStyle(
-            fontSize: 26,
+            fontSize: 28,
             fontWeight: FontWeight.bold,
             color: Colors.cyanAccent,
             letterSpacing: 1.5,
@@ -127,7 +170,7 @@ class ClockWidget extends StatelessWidget {
         Text(
           fullDate,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 22,
             fontWeight: FontWeight.w500,
             color: Colors.grey.shade300,
           ),
@@ -158,20 +201,20 @@ class AnalogClockPainter extends CustomPainter {
     final borderPaint = Paint()
       ..color = Colors.cyanAccent.withValues(alpha: 0.6)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5;
+      ..strokeWidth = 4.0;
     canvas.drawCircle(center, radius, borderPaint);
 
     // Tick Marks
     final tickPaint = Paint()
       ..color = Colors.white54
-      ..strokeWidth = 2.5;
+      ..strokeWidth = 3.0;
 
     for (int i = 0; i < 12; i++) {
       final angle = i * 30 * (pi / 180);
-      final outerX = center.dx + radius * 0.88 * cos(angle);
-      final outerY = center.dy + radius * 0.88 * sin(angle);
-      final innerX = center.dx + radius * 0.78 * cos(angle);
-      final innerY = center.dy + radius * 0.78 * sin(angle);
+      final outerX = center.dx + radius * 0.90 * cos(angle);
+      final outerY = center.dy + radius * 0.90 * sin(angle);
+      final innerX = center.dx + radius * 0.80 * cos(angle);
+      final innerY = center.dy + radius * 0.80 * sin(angle);
       canvas.drawLine(
           Offset(innerX, innerY), Offset(outerX, outerY), tickPaint);
     }
@@ -181,12 +224,12 @@ class AnalogClockPainter extends CustomPainter {
         ((now.hour % 12) + now.minute / 60) * 30 * (pi / 180) - (pi / 2);
     final hourHandPaint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 7
+      ..strokeWidth = 8.5
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
       center,
-      Offset(center.dx + radius * 0.45 * cos(hourAngle),
-          center.dy + radius * 0.45 * sin(hourAngle)),
+      Offset(center.dx + radius * 0.48 * cos(hourAngle),
+          center.dy + radius * 0.48 * sin(hourAngle)),
       hourHandPaint,
     );
 
@@ -195,12 +238,12 @@ class AnalogClockPainter extends CustomPainter {
         (now.minute + now.second / 60) * 6 * (pi / 180) - (pi / 2);
     final minuteHandPaint = Paint()
       ..color = Colors.white70
-      ..strokeWidth = 4.5
+      ..strokeWidth = 5.5
       ..strokeCap = StrokeCap.round;
     canvas.drawLine(
       center,
-      Offset(center.dx + radius * 0.65 * cos(minuteAngle),
-          center.dy + radius * 0.65 * sin(minuteAngle)),
+      Offset(center.dx + radius * 0.70 * cos(minuteAngle),
+          center.dy + radius * 0.70 * sin(minuteAngle)),
       minuteHandPaint,
     );
 
@@ -209,19 +252,19 @@ class AnalogClockPainter extends CustomPainter {
       final secondAngle = now.second * 6 * (pi / 180) - (pi / 2);
       final secondHandPaint = Paint()
         ..color = Colors.cyanAccent
-        ..strokeWidth = 2.0
+        ..strokeWidth = 2.5
         ..strokeCap = StrokeCap.round;
       canvas.drawLine(
         center,
-        Offset(center.dx + radius * 0.8 * cos(secondAngle),
-            center.dy + radius * 0.8 * sin(secondAngle)),
+        Offset(center.dx + radius * 0.82 * cos(secondAngle),
+            center.dy + radius * 0.82 * sin(secondAngle)),
         secondHandPaint,
       );
     }
 
     // Center Pivot Pin
     final centerPinPaint = Paint()..color = Colors.cyanAccent;
-    canvas.drawCircle(center, 5, centerPinPaint);
+    canvas.drawCircle(center, 6.5, centerPinPaint);
   }
 
   @override
