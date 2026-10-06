@@ -37,20 +37,18 @@ class ClockWidget extends StatelessWidget {
   /// Analog Mode: Side-by-Side Row layout with optional calendar on the right
   Widget _buildAnalogLayout(DateTime now) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(
-          child: Center(
-            child: _buildAnalogClockFace(now),
-          ),
+        Flexible(
+          fit: FlexFit.loose,
+          child: _buildAnalogClockFace(now),
         ),
         if (config.showCalendar) ...[
           const SizedBox(width: 16),
-          Expanded(
-            child: Center(
-              child: _buildCalendarDisplay(now, isStacked: false),
-            ),
+          Flexible(
+            fit: FlexFit.loose,
+            child: _buildCalendarDisplay(now, isStacked: false),
           ),
         ],
       ],

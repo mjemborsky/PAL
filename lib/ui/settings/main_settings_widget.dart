@@ -227,6 +227,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
 
   Widget _buildActiveListeningSection() {
     final config = widget.activeListeningConfig;
+    final isMilkdrop = config.style == ActiveListeningStyle.milkdrop;
 
     return ListView(
       children: [
@@ -262,7 +263,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Text('Milkdrop Waves', style: TextStyle(fontSize: 15)),
                 ),
-                selected: config.style == ActiveListeningStyle.milkdrop,
+                selected: isMilkdrop,
                 selectedColor: Colors.cyanAccent.withValues(alpha: 0.3),
                 onSelected: (selected) {
                   if (selected) {
@@ -295,26 +296,108 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        const Text('Audio Sensitivity',
-            style: TextStyle(
-                fontSize: 16,
+
+        // Milkdrop Specific Options
+        if (isMilkdrop) ...[
+          const SizedBox(height: 20),
+          const Divider(color: Colors.white12),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'MILKDROP ENGINE OPTIONS',
+              style: TextStyle(
+                color: Colors.cyanAccent,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: Colors.white)),
-        Slider(
-          value: config.sensitivity,
-          min: 0.5,
-          max: 2.0,
-          divisions: 15,
-          activeColor: Colors.cyanAccent,
-          label: '${config.sensitivity.toStringAsFixed(1)}x',
-          onChanged: (val) {
-            setState(() {
-              config.sensitivity = val;
-            });
-            widget.onUpdateConfig();
-          },
-        ),
+                letterSpacing: 1.2,
+              ),
+            ),
+          ),
+          SwitchListTile(
+            title: const Text('Show FPS Counter',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white)),
+            subtitle: Text('Display real-time rendering performance',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade400)),
+            value: config.showFPS,
+            activeThumbColor: Colors.cyanAccent,
+            onChanged: (val) {
+              setState(() {
+                config.showFPS = val;
+              });
+              widget.onUpdateConfig();
+            },
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Audio Sensitivity',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white)),
+              Text('${config.sensitivity.toStringAsFixed(1)}x',
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.cyanAccent)),
+            ],
+          ),
+          Slider(
+            value: config.sensitivity,
+            min: 0.5,
+            max: 2.0,
+            divisions: 15,
+            activeColor: Colors.cyanAccent,
+            onChanged: (val) {
+              setState(() {
+                config.sensitivity = val;
+              });
+              widget.onUpdateConfig();
+            },
+          ),
+        ],
+
+        // Vinyl Specific Options
+        if (!isMilkdrop) ...[
+          const SizedBox(height: 20),
+          const Divider(color: Colors.white12),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'VINYL ENGINE OPTIONS',
+              style: TextStyle(
+                color: Colors.cyanAccent,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text('Turntable Speed',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white)),
+            subtitle: Text('Standard playback rotation rate',
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade400)),
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade900,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Colors.white24),
+              ),
+              child: const Text('33 RPM',
+                  style: TextStyle(
+                      color: Colors.cyanAccent, fontWeight: FontWeight.bold)),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -337,24 +420,6 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
           onChanged: (val) {
             setState(() {
               general.themeMode = val ? AppThemeMode.dark : AppThemeMode.light;
-            });
-            widget.onUpdateConfig();
-          },
-        ),
-        const Divider(color: Colors.white12, height: 24),
-        SwitchListTile(
-          title: const Text('Show FPS Counter',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white)),
-          subtitle: Text('Display real-time rendering statistics',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade400)),
-          value: widget.activeListeningConfig.showFPS,
-          activeThumbColor: Colors.cyanAccent,
-          onChanged: (val) {
-            setState(() {
-              widget.activeListeningConfig.showFPS = val;
             });
             widget.onUpdateConfig();
           },
