@@ -14,42 +14,29 @@ This device is intended as a visualizer for audio playback for a linked device. 
 
 
 
-Portable Ambient Link — Software Development Roadmap
-
-
-
-Phase 1: Native Engine \& Flutter FFI Plumbing (Week 1)
-
-Goal: Get libprojectM rendering .milk presets inside a Flutter desktop target.
-\[ ] Build dynamic native libraries (.dll / .so) for libprojectM using CMake.
-\[ ] Configure ffigen and generate Dart FFI bindings (lib/visualizer/generated\_bindings.dart).
-\[ ] Connect libprojectM rendering output to Flutter using a native C++ Texture Entry.
-\[ ] Create a mock PCM generator to feed fake audio data via FFI and verify visual rendering.
 
 
 
 
-
-Phase 2: Audio Streaming \& Data Synchronization (Week 2)
-
-Goal: Hook up live system audio loopback and setup real-time metadata syncing.
-\[ ] Implement desktop audio loopback (WASAPI/PulseAudio) to feed real 16/32-bit float PCM buffers.
-\[ ] Implement WebSocket client in lib/services/ for live audio player state changes.
-\[ ] Build HTTP service for track metadata, artwork loading, and ReplayGain values.
-\[ ] Build a local Python/Node mock server to emit simulated playback events and art URLs.
+DEVELOPMENT PHASES
 
 
 
+PHASE 1: Pure UI Layout \& Widescreen Adaptation (Work Computer)
+
+Goal: Build and refine all views targeting the 800x480 resolution aspect ratio.
 
 
 
+\[ ] Lock window dimensions to 800x480 across test targets.
 
-Phase 3: Watch UI, Gestures \& Preset Switcher (Week 3)
+\[ ] Optimize Standby View layout (Clock faces, Weather widget, Status cards) for widescreen landscape.
 
-Goal: Develop app state engine, gesture controls, and preset management.
-\[ ] Build State Machine: Standby View (clock/weather) vs. Active View (art/controls/visualizer).
-\[ ] Build watch-style UI widgets (lib/ui/) with swipe gestures for preset and page switching.
-\[ ] Implement .milk preset manager for manual selection and automated crossfade cycling.
+\[ ] Build interactive Now Playing / Player UI (Track metadata, cover art, play/pause controls, seek bar scrubbing).
+
+\[ ] Expand Settings \& Subpages (Dual-column layout, view reordering, theme customization, preset selectors).
+
+\[ ] Integrate MockAudioService to stream fake PCM arrays (128-sample buffers) for UI visualizer previewing.
 
 
 
@@ -57,12 +44,73 @@ Goal: Develop app state engine, gesture controls, and preset management.
 
 
 
-Phase 4: Weather Integration, Optimization \& Prep (Week 4)
+PHASE 2: Data Synchronization \& Simulated Communication Loop (Work Computer)
 
-Goal: Polish performance, resolve frame drops, and simulate final screen resolution.
-\[ ] Integrate Open-Meteo API in weather\_service.dart for standby weather widgets.
-\[ ] Profile and resolve frame drops during complex preset transitions; optimize FFI memory allocation.
-\[ ] Lock desktop preview to target resolution (e.g., 480x480 circular/square layout) for UI scaling tests.
+Goal: Connect UI state layer to network/websocket channels using local unprivileged mocks.
+
+
+
+\[ ] Implement MockPlaybackService to handle dynamic song switching, playback states, and progress ticks.
+
+\[ ] Build lib/services/player\_sync\_service.dart using WebSocket (web\_socket\_channel) and HTTP.
+
+\[ ] Create a local Python/Node mock server to emit real-time WebSocket track updates and serve mock cover art via HTTP.
+
+\[ ] Integrate state management (Provider) to dynamically bind UI controls to real-time events.
+
+
+
+
+
+
+
+
+
+PHASE 3: Native Engine Integration \& FFI Plumbing (Home Computer)
+
+Goal: Connect C++ libprojectM visualizer engine to Flutter via FFI and Native Textures.
+
+
+
+\[ ] Compile libprojectM shared dynamic libraries (.dll for Windows, .so for Linux) using CMake \& VS 2022.
+
+\[ ] Generate Dart FFI bindings using ffigen (lib/visualizer/generated\_bindings.dart).
+
+\[ ] Implement native C++ Texture Entry to pipe libprojectM OpenGL/DirectX frame output directly into Flutter.
+
+\[ ] Pass mock PCM audio streams across FFI boundary into libprojectM to verify frame rendering.
+
+
+
+
+
+
+
+
+
+
+
+PHASE 4: Hardware Audio Loopback \& Raspberry Pi Deployment (Home Computer \& Pi)
+
+Goal: Replace mock audio with real hardware loopback and deploy to the target 800x480 device.
+
+
+
+\[ ] Implement low-level audio loopback capturing live PCM frames:
+
+\- WASAPI for Windows environment.
+
+\- PulseAudio / ALSA for Linux / Raspberry Pi target.
+
+\[ ] Deploy Flutter application to 800x480 touchscreen display (Kiosk Mode).
+
+\[ ] Calibrate touch and swipe gestures (pull-down overlay, view swiping, volume control).
+
+\[ ] Profile rendering performance, reduce FFI memory allocations, and resolve frame drops during complex MilkDrop preset transitions.
+
+
+
+
 
 
 
@@ -81,6 +129,18 @@ $env:Path += ";C:\\Program Files\\Git\\cmd;C:\\Users\\michael.emborsky\\Dev\\flu
 
 
 flutter run -d edge --no-pub
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
