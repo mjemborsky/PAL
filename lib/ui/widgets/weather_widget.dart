@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../models/widget_config.dart';
+import '../../services/mock_weather_service.dart';
 
 class WeatherWidget extends StatelessWidget {
   final StandbyWidgetConfig config;
@@ -10,6 +13,9 @@ class WeatherWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+
+    final weatherService = context.watch<MockWeatherService>();
+    final weather = weatherService.currentWeather;
 
     final primaryTextColor = isDark ? Colors.white : Colors.black87;
     final secondaryTextColor =
@@ -30,7 +36,7 @@ class WeatherWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '72°F',
+                '${weather.temperatureF.round()}°F',
                 style: TextStyle(
                   fontSize: 76,
                   fontWeight: FontWeight.bold,
@@ -40,7 +46,7 @@ class WeatherWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Partly Cloudy • Saint Paul',
+                '${weather.condition} • ${weather.locationName}',
                 style: TextStyle(
                   fontSize: 22,
                   color: secondaryTextColor,

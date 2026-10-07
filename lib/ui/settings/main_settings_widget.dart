@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../models/widget_config.dart';
-import 'views_management_page.dart';
+import 'active_listening_settings_page.dart';
 import 'details/clock_detail_widget.dart';
+import 'general_settings_page.dart';
 
 class MainSettingsWidget extends StatefulWidget {
   final List<StandbyWidgetConfig> allWidgets;
@@ -28,414 +30,334 @@ class MainSettingsWidget extends StatefulWidget {
 }
 
 class _MainSettingsWidgetState extends State<MainSettingsWidget> {
-  int _selectedCategoryIndex = 0;
-  StandbyWidgetConfig? _selectedWidgetForDetail;
+  // Navigation Category Selection: 'views', 'active_listening', 'general', or specific widget id
+  String _selectedSection = 'views';
 
-  final List<String> _categories = [
-    'Views Management',
-    'Active Listening',
-    'Appearance & System',
-  ];
+  void _showAddWidgetSheet() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Add New View',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading:
+                      Icon(Icons.access_time, color: theme.colorScheme.primary),
+                  title: const Text('Clock View'),
+                  onTap: () {
+                    widget.onAddWidget(StandbyWidgetType.clock);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading:
+                      Icon(Icons.wb_sunny, color: theme.colorScheme.primary),
+                  title: const Text('Weather View'),
+                  onTap: () {
+                    widget.onAddWidget(StandbyWidgetType.weather);
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRightDetailPanel(bool isDark, ThemeData theme) {
+    // 1. Clock Details Selected
+    if (_selectedSection.startsWith('clock_') || _selectedSection == 'clock') {
+      final clockConfig = widget.allWidgets.firstWhere(
+        (w) => w.type == StandbyWidgetType.clock,
+        orElse: () => widget.allWidgets.first,
+      );
+      return ClockDetailWidget(
+        config: clockConfig,
+        onBack: () => setState(() => _selectedSection = 'views'),
+        onUpdateConfig: widget.onUpdateConfig,
+      );
+    }
+
+    // 2. Active Listening Selected
+    if (_selectedSection == 'active_listening') {
+      return ActiveListeningSettingsPage(
+        config: widget.activeListeningConfig,
+        onBack: () => setState(() => _selectedSection = 'views'),
+        onUpdateConfig: widget.onUpdateConfig,
+      );
+    }
+
+    // 3. General Settings Selected
+    if (_selectedSection == 'general') {
+      return GeneralSettingsPage(
+        config: widget.generalConfig,
+        onBack: () => setState(() => _selectedSection = 'views'),
+        onUpdateConfig: widget.onUpdateConfig,
+      );
+    }
+
+    // 4. Default: Views Management List
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Views Order & Visibility',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Drag handles to reorder views or toggle enable/disable state.',
+          style: TextStyle(
+            fontSize: 13,
+            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Expanded(
+          child: ReorderableListView.builder(
+            itemCount: widget.allWidgets.length,
+            onReorder: widget.onReorder,
+            itemBuilder: (context, index) {
+              final item = widget.allWidgets[index];
+              final isSettings = item.type == StandbyWidgetType.settings;
+
+              return Container(
+                key: ValueKey(item.id),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? Colors.white12 : Colors.black12,
+                  ),
+                ),
+                child: ListTile(
+                  leading: Icon(
+                    item.type == StandbyWidgetType.clock
+                        ? Icons.access_time
+                        : item.type == StandbyWidgetType.weather
+                            ? Icons.wb_sunny
+                            : Icons.tune,
+                    color: theme.colorScheme.primary,
+                  ),
+                  title: Text(
+                    item.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  subtitle: Text(
+                    isSettings ? 'Always active' : 'Tap to configure',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color:
+                          isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                    ),
+                  ),
+                  onTap: isSettings
+                      ? null
+                      : () {
+                          setState(() {
+                            _selectedSection = item.id;
+                          });
+                        },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!isSettings)
+                        Switch(
+                          value: item.isEnabled,
+                          activeColor: theme.colorScheme.primary,
+                          onChanged: (enabled) =>
+                              widget.onToggle(item.id, enabled),
+                        ),
+                      const SizedBox(width: 8),
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: Icon(
+                          Icons.drag_handle,
+                          color: isDark
+                              ? Colors.grey.shade600
+                              : Colors.grey.shade400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 12.0),
+          child: OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(44),
+              side: BorderSide(color: theme.colorScheme.primary),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: _showAddWidgetSheet,
+            icon: Icon(Icons.add, color: theme.colorScheme.primary),
+            label: Text(
+              'Add New View',
+              style: TextStyle(color: theme.colorScheme.primary),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.settings,
-                          color: theme.colorScheme.primary, size: 28),
-                      const SizedBox(width: 12),
-                      Text(
+    return Material(
+      color: Colors.transparent,
+      child: SafeArea(
+        child: Row(
+          children: [
+            // LEFT COLUMN: Sidebar Categories Navigation
+            SizedBox(
+              width: 220,
+              child: Container(
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.03)
+                      : Colors.black.withValues(alpha: 0.03),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isDark ? Colors.white12 : Colors.black12,
+                  ),
+                ),
+                child: ListView(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: Text(
                         'SETTINGS',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          letterSpacing: 2.0,
+                          letterSpacing: 1.2,
+                          color: isDark
+                              ? Colors.grey.shade500
+                              : Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      selected: _selectedSection == 'views',
+                      selectedTileColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.15),
+                      leading: Icon(
+                        Icons.view_list,
+                        color: _selectedSection == 'views'
+                            ? theme.colorScheme.primary
+                            : (isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade700),
+                      ),
+                      title: Text(
+                        'Views Order',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.black87,
                         ),
                       ),
-                    ],
-                  ),
-                  Text(
-                    'PAL v1.0',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color:
-                          isDark ? Colors.grey.shade600 : Colors.grey.shade500,
-                      fontWeight: FontWeight.w600,
+                      onTap: () => setState(() => _selectedSection = 'views'),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Divider(color: theme.dividerColor, height: 1),
-              const SizedBox(height: 16),
-
-              // Main 2-Column Split View
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left Side Categories Navigation
-                    SizedBox(
-                      width: 220,
-                      child: ListView.builder(
-                        itemCount: _categories.length,
-                        itemBuilder: (context, index) {
-                          final isSelected = _selectedCategoryIndex == index;
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: Material(
-                              color: isSelected
-                                  ? theme.colorScheme.primary
-                                      .withValues(alpha: 0.15)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
-                              clipBehavior: Clip.antiAlias,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? theme.colorScheme.primary
-                                        : Colors.transparent,
-                                    width: 1.5,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 4),
-                                  title: Text(
-                                    _categories[index],
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.w500,
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : (isDark
-                                              ? Colors.grey.shade400
-                                              : Colors.grey.shade700),
-                                    ),
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedCategoryIndex = index;
-                                      _selectedWidgetForDetail = null;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                    ListTile(
+                      selected: _selectedSection == 'active_listening',
+                      selectedTileColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.15),
+                      leading: Icon(
+                        Icons.music_note,
+                        color: _selectedSection == 'active_listening'
+                            ? theme.colorScheme.primary
+                            : (isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade700),
                       ),
+                      title: Text(
+                        'Active Overlay',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      onTap: () =>
+                          setState(() => _selectedSection = 'active_listening'),
                     ),
-                    const SizedBox(width: 20),
-                    VerticalDivider(color: theme.dividerColor, width: 1),
-                    const SizedBox(width: 20),
-
-                    // Right Side Dynamic Content Subpage
-                    Expanded(
-                      child: _buildRightSideContent(isDark),
+                    ListTile(
+                      selected: _selectedSection == 'general',
+                      selectedTileColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.15),
+                      leading: Icon(
+                        Icons.tune,
+                        color: _selectedSection == 'general'
+                            ? theme.colorScheme.primary
+                            : (isDark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade700),
+                      ),
+                      title: Text(
+                        'General',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      onTap: () => setState(() => _selectedSection = 'general'),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRightSideContent(bool isDark) {
-    if (_selectedWidgetForDetail != null) {
-      switch (_selectedWidgetForDetail!.type) {
-        case StandbyWidgetType.clock:
-          return ClockDetailWidget(
-            config: _selectedWidgetForDetail!,
-            onBack: () {
-              setState(() {
-                _selectedWidgetForDetail = null;
-              });
-            },
-            onUpdateConfig: widget.onUpdateConfig,
-          );
-        case StandbyWidgetType.weather:
-        case StandbyWidgetType.settings:
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              IconButton(
-                icon: Icon(Icons.arrow_back,
-                    color: Theme.of(context).colorScheme.primary),
-                onPressed: () {
-                  setState(() {
-                    _selectedWidgetForDetail = null;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              Text(
-                '${_selectedWidgetForDetail!.title} Settings',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87),
-              ),
-            ],
-          );
-      }
-    }
-
-    switch (_selectedCategoryIndex) {
-      case 0:
-        return ViewsManagementPage(
-          allWidgets: widget.allWidgets,
-          onReorder: widget.onReorder,
-          onToggle: widget.onToggle,
-          onAddWidget: widget.onAddWidget,
-          onSelectWidget: (selectedWidget) {
-            setState(() {
-              _selectedWidgetForDetail = selectedWidget;
-            });
-          },
-          onBack: () {
-            setState(() {
-              _selectedCategoryIndex = 0;
-              _selectedWidgetForDetail = null;
-            });
-          },
-        );
-      case 1:
-        return _buildActiveListeningSection(isDark);
-      case 2:
-        return _buildAppearanceSection(isDark);
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
-  Widget _buildActiveListeningSection(bool isDark) {
-    final config = widget.activeListeningConfig;
-    final isMilkdrop = config.style == ActiveListeningStyle.milkdrop;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
-
-    return ListView(
-      children: [
-        SwitchListTile(
-          title: Text('Enable Overlay',
-              style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold, color: textColor)),
-          subtitle: Text('Swipe down from top edge to reveal overlay',
-              style: TextStyle(fontSize: 14, color: subtitleColor)),
-          value: config.isEnabled,
-          activeThumbColor: Theme.of(context).colorScheme.primary,
-          onChanged: (val) {
-            setState(() {
-              config.isEnabled = val;
-            });
-            widget.onUpdateConfig();
-          },
-        ),
-        const SizedBox(height: 12),
-        Text('Visualizer Style',
-            style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: ChoiceChip(
-                label: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text('Milkdrop Waves', style: TextStyle(fontSize: 15)),
-                ),
-                selected: isMilkdrop,
-                selectedColor: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.3),
-                onSelected: (selected) {
-                  if (selected) {
-                    setState(() {
-                      config.style = ActiveListeningStyle.milkdrop;
-                    });
-                    widget.onUpdateConfig();
-                  }
-                },
-              ),
             ),
-            const SizedBox(width: 12),
+
+            // RIGHT COLUMN: Selected Detail Content Area
             Expanded(
-              child: ChoiceChip(
-                label: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text('Vinyl Disc', style: TextStyle(fontSize: 15)),
-                ),
-                selected: config.style == ActiveListeningStyle.vinyl,
-                selectedColor: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.3),
-                onSelected: (selected) {
-                  if (selected) {
-                    setState(() {
-                      config.style = ActiveListeningStyle.vinyl;
-                    });
-                    widget.onUpdateConfig();
-                  }
-                },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 12.0),
+                child: _buildRightDetailPanel(isDark, theme),
               ),
             ),
           ],
         ),
-        if (isMilkdrop) ...[
-          const SizedBox(height: 20),
-          Divider(color: Theme.of(context).dividerColor),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(
-              'MILKDROP ENGINE OPTIONS',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-          SwitchListTile(
-            title: Text('Show FPS Counter',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: textColor)),
-            subtitle: Text('Display real-time rendering performance',
-                style: TextStyle(fontSize: 13, color: subtitleColor)),
-            value: config.showFPS,
-            activeThumbColor: Theme.of(context).colorScheme.primary,
-            onChanged: (val) {
-              setState(() {
-                config.showFPS = val;
-              });
-              widget.onUpdateConfig();
-            },
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Audio Sensitivity',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: textColor)),
-              Text('${config.sensitivity.toStringAsFixed(1)}x',
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary)),
-            ],
-          ),
-          Slider(
-            value: config.sensitivity,
-            min: 0.5,
-            max: 2.0,
-            divisions: 15,
-            activeColor: Theme.of(context).colorScheme.primary,
-            onChanged: (val) {
-              setState(() {
-                config.sensitivity = val;
-              });
-              widget.onUpdateConfig();
-            },
-          ),
-        ],
-        if (!isMilkdrop) ...[
-          const SizedBox(height: 20),
-          Divider(color: Theme.of(context).dividerColor),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(
-              'VINYL ENGINE OPTIONS',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-          ListTile(
-            title: Text('Turntable Speed',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: textColor)),
-            subtitle: Text('Standard playback rotation rate',
-                style: TextStyle(fontSize: 13, color: subtitleColor)),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey.shade900 : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: Theme.of(context).dividerColor),
-              ),
-              child: Text('33 RPM',
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildAppearanceSection(bool isDark) {
-    final general = widget.generalConfig;
-    final textColor = isDark ? Colors.white : Colors.black87;
-    final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
-
-    return ListView(
-      children: [
-        SwitchListTile(
-          title: Text('Dark Mode Theme',
-              style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold, color: textColor)),
-          subtitle: Text(
-            isDark ? 'Dark background enabled' : 'Light background enabled',
-            style: TextStyle(fontSize: 14, color: subtitleColor),
-          ),
-          value: general.themeMode == AppThemeMode.dark,
-          activeThumbColor: Theme.of(context).colorScheme.primary,
-          onChanged: (val) {
-            setState(() {
-              general.themeMode = val ? AppThemeMode.dark : AppThemeMode.light;
-            });
-            // Propagate theme update up to StandbyView to trigger full App re-theme
-            widget.onUpdateConfig();
-          },
-        ),
-      ],
+      ),
     );
   }
 }

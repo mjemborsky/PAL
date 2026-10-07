@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../models/widget_config.dart';
+import '../../services/mock_playback_service.dart';
 
 class ActiveListeningWidget extends StatefulWidget {
   final ActiveListeningConfig config;
@@ -50,10 +53,17 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
     }
   }
 
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final playbackService = context.watch<MockPlaybackService>();
 
     return Container(
       color: isDark ? Colors.black : theme.scaffoldBackgroundColor,
@@ -64,17 +74,25 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
           animation: _controller,
           builder: (context, child) {
             if (widget.config.style == ActiveListeningStyle.vinyl) {
-              return _buildVinylView(_controller.value, theme, isDark);
+              return _buildVinylView(
+                  _controller.value, theme, isDark, playbackService);
             }
-            return _buildMilkdropView(_controller.value, theme, isDark);
+            return _buildMilkdropView(
+                _controller.value, theme, isDark, playbackService);
           },
         ),
       ),
     );
   }
 
-  Widget _buildMilkdropView(double animValue, ThemeData theme, bool isDark) {
+  Widget _buildMilkdropView(
+    double animValue,
+    ThemeData theme,
+    bool isDark,
+    MockPlaybackService playbackService,
+  ) {
     final primaryTextColor = isDark ? Colors.white : Colors.black87;
+    final currentTrack = playbackService.currentTrack;
 
     return Stack(
       children: [
@@ -112,7 +130,7 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
               ),
               const SizedBox(height: 6),
               Text(
-                'Hypnotic Ambient Stream',
+                '${currentTrack.title} — ${currentTrack.artist}',
                 style: TextStyle(
                   color: primaryTextColor,
                   fontSize: 24,
@@ -151,9 +169,25 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
     );
   }
 
-  Widget _buildVinylView(double animValue, ThemeData theme, bool isDark) {
+  Widget _buildVinylView(
+    double animValue,
+    ThemeData theme,
+    bool isDark,
+    MockPlaybackService playbackService,
+  ) {
+    final currentTrack = playbackService.currentTrack;
+    final currentPos = playbackService.currentPosition;
+    final totalDuration = currentTrack.duration;
+
+    final progressValue = totalDuration.inSeconds > 0
+        ? (currentPos.inSeconds / totalDuration.inSeconds).clamp(0.0, 1.0)
+        : 0.0;
+
     final rotationAngle =
-        widget.config.rotateVinyl ? animValue * 2 * math.pi : 0.0;
+        (widget.config.rotateVinyl && playbackService.isPlaying)
+            ? animValue * 2 * math.pi
+            : 0.0;
+
     final primaryTextColor = isDark ? Colors.white : Colors.black87;
     final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
 
@@ -204,17 +238,21 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                           border: Border.all(color: Colors.white24, width: 1.5),
                         ),
                       ),
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                      // Center Label with dynamic Album Art fallback
+                      ClipOval(
+                        child: Container(
+                          width: 100,
+                          height: 100,
                           color: theme.colorScheme.primary,
-                        ),
-                        child: const Icon(
-                          Icons.album,
-                          color: Colors.black87,
-                          size: 60,
+                          child: Image.network(
+                            currentTrack.albumArtUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.album,
+                              color: Colors.black87,
+                              size: 60,
+                            ),
+                          ),
                         ),
                       ),
                       Container(
@@ -256,26 +294,30 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Resonance',
+                  currentTrack.title,
                   style: TextStyle(
-                    fontSize: 42,
+                    fontSize: 38,
                     fontWeight: FontWeight.bold,
                     color: primaryTextColor,
                     height: 1.1,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'HOME • Odyssey',
+                  '${currentTrack.artist} • ${currentTrack.album}',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 20,
                     color: subtitleColor,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (widget.config.showProgressBar) ...[
                   const SizedBox(height: 28),
                   LinearProgressIndicator(
-                    value: (animValue * 3) % 1.0,
+                    value: progressValue,
                     backgroundColor: isDark ? Colors.white12 : Colors.black12,
                     color: theme.colorScheme.primary,
                     borderRadius: BorderRadius.circular(4),
@@ -285,9 +327,9 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('1:42',
+                      Text(_formatDuration(currentPos),
                           style: TextStyle(fontSize: 15, color: subtitleColor)),
-                      Text('3:32',
+                      Text(_formatDuration(totalDuration),
                           style: TextStyle(fontSize: 15, color: subtitleColor)),
                     ],
                   ),
