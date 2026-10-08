@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/widget_config.dart';
@@ -24,6 +26,8 @@ class ActiveListeningWidget extends StatefulWidget {
 class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  PaletteGenerator? _palette;
+  String? _lastTrackUrl;
 
   @override
   void initState() {
@@ -40,23 +44,32 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
     super.dispose();
   }
 
-  void _handleVerticalDragEnd(DragEndDetails details) {
-    if (!widget.config.isEnabled) return;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final playbackService = context.watch<MockPlaybackService>();
+    final newUrl = playbackService.currentTrack.albumArtUrl;
 
-    final velocityY = details.primaryVelocity ?? 0.0;
-    const velocityThreshold = 200.0;
-
-    if (velocityY < -velocityThreshold) {
-      widget.onDismiss?.call();
-    } else if (velocityY > velocityThreshold) {
-      widget.onReveal?.call();
+    if (_lastTrackUrl != newUrl) {
+      _lastTrackUrl = newUrl;
+      _updatePalette(newUrl);
     }
   }
 
-  String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes;
-    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$seconds';
+  Future<void> _updatePalette(String imageUrl) async {
+    try {
+      final palette = await PaletteGenerator.fromImageProvider(
+        NetworkImage(imageUrl),
+        maximumColorCount: 8,
+      );
+      if (mounted) {
+        setState(() {
+          _palette = palette;
+        });
+      }
+    } catch (_) {
+      // Fall back silently if offline or image fails to load
+    }
   }
 
   @override
@@ -64,108 +77,74 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final playbackService = context.watch<MockPlaybackService>();
-
-    return Container(
-      color: isDark ? Colors.black : theme.scaffoldBackgroundColor,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onVerticalDragEnd: _handleVerticalDragEnd,
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            if (widget.config.style == ActiveListeningStyle.vinyl) {
-              return _buildVinylView(
-                  _controller.value, theme, isDark, playbackService);
-            }
-            return _buildMilkdropView(
-                _controller.value, theme, isDark, playbackService);
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMilkdropView(
-    double animValue,
-    ThemeData theme,
-    bool isDark,
-    MockPlaybackService playbackService,
-  ) {
-    final primaryTextColor = isDark ? Colors.white : Colors.black87;
     final currentTrack = playbackService.currentTrack;
 
-    return Stack(
-      children: [
-        CustomPaint(
-          size: Size.infinite,
-          painter: _MilkdropPainter(
-            animValue: animValue,
-            sensitivity: widget.config.sensitivity,
-            isDark: isDark,
-            backgroundColor:
-                isDark ? Colors.black : theme.scaffoldBackgroundColor,
-          ),
-        ),
-        Positioned(
-          left: 32,
-          bottom: 28,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.graphic_eq,
-                      color: theme.colorScheme.primary, size: 24),
-                  const SizedBox(width: 10),
-                  Text(
-                    'MILKDROP VISUALIZER',
-                    style: TextStyle(
-                      color: theme.colorScheme.primary,
-                      fontSize: 14,
-                      letterSpacing: 2.5,
-                      fontWeight: FontWeight.bold,
+    // Extract dynamic colors with theme fallbacks
+    final dominantColor =
+        _palette?.dominantColor?.color ?? theme.colorScheme.primary;
+    final accentColor = _palette?.vibrantColor?.color ??
+        _palette?.lightVibrantColor?.color ??
+        theme.colorScheme.secondary;
+
+    return Container(
+      color: Colors.black,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onVerticalDragEnd: (details) {
+          final velocityY = details.primaryVelocity ?? 0.0;
+          if (velocityY < -200) widget.onDismiss?.call();
+          if (velocityY > 200) widget.onReveal?.call();
+        },
+        child: Stack(
+          children: [
+            // LAYER 1: Full Album Background with Gaussian Blur (Isolated via ClipRect)
+            Positioned.fill(
+              child: ClipRect(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(
+                      currentTrack.albumArtUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          Container(color: Colors.black),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '${currentTrack.title} — ${currentTrack.artist}',
-                style: TextStyle(
-                  color: primaryTextColor,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 35, sigmaY: 35),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.65),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        ),
-        if (widget.config.showFPS)
-          Positioned(
-            top: 24,
-            left: 32,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.black54
-                    : Colors.white.withValues(alpha: 0.87),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isDark ? Colors.white10 : Colors.black12,
-                ),
-              ),
-              child: const Text(
-                '60 FPS',
-                style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'monospace'),
               ),
             ),
-          ),
-      ],
+
+            // LAYER 2: Foreground Controls & Spinning Vinyl
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                if (widget.config.style == ActiveListeningStyle.vinyl) {
+                  return _buildVinylView(
+                    _controller.value,
+                    theme,
+                    isDark,
+                    playbackService,
+                    dominantColor,
+                    accentColor,
+                  );
+                }
+                return _buildMilkdropView(
+                  _controller.value,
+                  theme,
+                  isDark,
+                  playbackService,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -174,6 +153,8 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
     ThemeData theme,
     bool isDark,
     MockPlaybackService playbackService,
+    Color dominantColor,
+    Color accentColor,
   ) {
     final currentTrack = playbackService.currentTrack;
     final currentPos = playbackService.currentPosition;
@@ -188,14 +169,11 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
             ? animValue * 2 * math.pi
             : 0.0;
 
-    final primaryTextColor = isDark ? Colors.white : Colors.black87;
-    final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 24.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Spinning Record Disc Area
           Expanded(
             flex: 5,
             child: Center(
@@ -206,61 +184,88 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                   height: 310,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isDark ? Colors.grey.shade900 : Colors.grey.shade800,
+                    color: const Color(0xFF121212), // Deep vinyl wax color
                     boxShadow: [
+                      // Ambient Glow based on extracted album accent color
                       BoxShadow(
-                        color:
-                            Colors.black.withValues(alpha: isDark ? 0.4 : 0.2),
-                        blurRadius: 20,
+                        color: accentColor.withValues(alpha: 0.35),
+                        blurRadius: 30,
+                        spreadRadius: 2,
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.6),
+                        blurRadius: 15,
                         spreadRadius: 4,
                       ),
                     ],
+                    // High-contrast rim outline guarantees separation from dark background art
                     border: Border.all(
-                        color: isDark ? Colors.white10 : Colors.black12,
-                        width: 3),
+                      color: Colors.white.withValues(alpha: 0.18),
+                      width: 2.5,
+                    ),
                   ),
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
+                      // Outer Vinyl Groove Line
                       Container(
                         width: 240,
                         height: 240,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white24, width: 1.5),
+                          border: Border.all(color: Colors.white12, width: 1.5),
                         ),
                       ),
+                      // Inner Vinyl Groove Line
                       Container(
                         width: 170,
                         height: 170,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white24, width: 1.5),
+                          border: Border.all(color: Colors.white12, width: 1.5),
                         ),
                       ),
-                      // Center Label with dynamic Album Art fallback
-                      ClipOval(
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          color: theme.colorScheme.primary,
-                          child: Image.network(
-                            currentTrack.albumArtUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.album,
-                              color: Colors.black87,
-                              size: 60,
+
+                      // DYNAMIC CENTER LABEL STICKER
+                      Container(
+                        width: 110,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              accentColor,
+                              dominantColor,
+                            ],
+                          ),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            width: 2.5,
+                          ),
+                        ),
+                        child: ClipOval(
+                          child: Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: Image.network(
+                              currentTrack.albumArtUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.music_note,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                       ),
+
+                      // Center Spindle Hole
                       Container(
-                        width: 16,
-                        height: 16,
-                        decoration: const BoxDecoration(
+                        width: 14,
+                        height: 14,
+                        decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.black,
+                          border: Border.all(color: Colors.white30, width: 1.0),
                         ),
                       ),
                     ],
@@ -270,6 +275,8 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
             ),
           ),
           const SizedBox(width: 36),
+
+          // Metadata & Controls Area
           Expanded(
             flex: 6,
             child: Column(
@@ -278,8 +285,7 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
               children: [
                 Row(
                   children: [
-                    Icon(Icons.music_note,
-                        color: theme.colorScheme.primary, size: 22),
+                    Icon(Icons.music_note, color: accentColor, size: 22),
                     const SizedBox(width: 8),
                     Text(
                       'NOW PLAYING',
@@ -287,7 +293,7 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2.5,
-                        color: theme.colorScheme.primary,
+                        color: accentColor,
                       ),
                     ),
                   ],
@@ -295,10 +301,10 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                 const SizedBox(height: 12),
                 Text(
                   currentTrack.title,
-                  style: TextStyle(
-                    fontSize: 38,
+                  style: const TextStyle(
+                    fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    color: primaryTextColor,
+                    color: Colors.white,
                     height: 1.1,
                   ),
                   maxLines: 1,
@@ -309,7 +315,7 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                   '${currentTrack.artist} • ${currentTrack.album}',
                   style: TextStyle(
                     fontSize: 20,
-                    color: subtitleColor,
+                    color: Colors.white.withValues(alpha: 0.75),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -318,8 +324,8 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                   const SizedBox(height: 28),
                   LinearProgressIndicator(
                     value: progressValue,
-                    backgroundColor: isDark ? Colors.white12 : Colors.black12,
-                    color: theme.colorScheme.primary,
+                    backgroundColor: Colors.white24,
+                    color: accentColor,
                     borderRadius: BorderRadius.circular(4),
                     minHeight: 8,
                   ),
@@ -327,10 +333,16 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(_formatDuration(currentPos),
-                          style: TextStyle(fontSize: 15, color: subtitleColor)),
-                      Text(_formatDuration(totalDuration),
-                          style: TextStyle(fontSize: 15, color: subtitleColor)),
+                      Text(
+                        _formatDuration(currentPos),
+                        style: const TextStyle(
+                            fontSize: 15, color: Colors.white70),
+                      ),
+                      Text(
+                        _formatDuration(totalDuration),
+                        style: const TextStyle(
+                            fontSize: 15, color: Colors.white70),
+                      ),
                     ],
                   ),
                 ],
@@ -341,68 +353,21 @@ class _ActiveListeningWidgetState extends State<ActiveListeningWidget>
       ),
     );
   }
-}
 
-class _MilkdropPainter extends CustomPainter {
-  final double animValue;
-  final double sensitivity;
-  final bool isDark;
-  final Color backgroundColor;
-
-  _MilkdropPainter({
-    required this.animValue,
-    required this.sensitivity,
-    required this.isDark,
-    required this.backgroundColor,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = backgroundColor,
+  Widget _buildMilkdropView(
+    double animValue,
+    ThemeData theme,
+    bool isDark,
+    MockPlaybackService playbackService,
+  ) {
+    return const Center(
+      child: Text('Milkdrop View', style: TextStyle(color: Colors.white)),
     );
-
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width, size.height) * 0.45;
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5;
-
-    for (int i = 0; i < 5; i++) {
-      final progress = (animValue + (i * 0.2)) % 1.0;
-      final currentRadius = radius * progress;
-      final opacity = (1.0 - progress).clamp(0.0, 1.0);
-
-      paint.color = HSVColor.fromAHSV(
-        opacity,
-        (animValue * 360 + (i * 40)) % 360,
-        isDark ? 0.8 : 0.9,
-        isDark ? 1.0 : 0.7,
-      ).toColor();
-
-      final path = Path();
-      const points = 80;
-      for (int j = 0; j <= points; j++) {
-        final angle = (j / points) * 2 * math.pi;
-        final distortion =
-            math.sin(angle * 6 + animValue * 10 + i) * (14 * sensitivity);
-        final r = currentRadius + distortion;
-        final x = center.dx + r * math.cos(angle);
-        final y = center.dy + r * math.sin(angle);
-
-        if (j == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
-      }
-      path.close();
-      canvas.drawPath(path, paint);
-    }
   }
 
-  @override
-  bool shouldRepaint(covariant _MilkdropPainter oldDelegate) => true;
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes;
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
 }
