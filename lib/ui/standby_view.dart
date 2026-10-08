@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+
 import '../models/widget_config.dart';
-import 'widgets/active_listening_widget.dart';
+import 'settings/main_settings_widget.dart';
+import 'widgets/milkdrop_active_listening_widget.dart';
+import 'widgets/vinyl_active_listening_widget.dart';
 import 'widgets/clock_widget.dart';
 import 'widgets/weather_widget.dart';
-import 'settings/main_settings_widget.dart';
 
 class StandbyView extends StatefulWidget {
   const StandbyView({super.key});
@@ -117,6 +119,23 @@ class _StandbyViewState extends State<StandbyView> {
     }
   }
 
+  Widget _buildActiveListeningWidget() {
+    switch (_activeListeningConfig.style) {
+      case ActiveListeningStyle.vinyl:
+        return VinylActiveListeningWidget(
+          config: _activeListeningConfig,
+          onDismiss: _hideOverlay,
+          onReveal: _showOverlay,
+        );
+      case ActiveListeningStyle.milkdrop:
+        return MilkdropActiveListeningWidget(
+          config: _activeListeningConfig,
+          onDismiss: _hideOverlay,
+          onReveal: _showOverlay,
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final activeWidgets = _widgets.where((w) => w.isEnabled).toList();
@@ -182,11 +201,7 @@ class _StandbyViewState extends State<StandbyView> {
                   height: MediaQuery.of(context).size.height,
                   child: Container(
                     color: Colors.black,
-                    child: ActiveListeningWidget(
-                      config: _activeListeningConfig,
-                      onDismiss: _hideOverlay,
-                      onReveal: _showOverlay,
-                    ),
+                    child: _buildActiveListeningWidget(),
                   ),
                 ),
               ],

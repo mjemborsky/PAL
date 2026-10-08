@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../models/widget_config.dart';
 
-class ActiveListeningSettingsPage extends StatelessWidget {
+class ActiveListeningSettingsPage extends StatefulWidget {
   final ActiveListeningConfig config;
   final VoidCallback onBack;
   final VoidCallback onUpdateConfig;
@@ -14,160 +15,273 @@ class ActiveListeningSettingsPage extends StatelessWidget {
   });
 
   @override
+  State<ActiveListeningSettingsPage> createState() =>
+      _ActiveListeningSettingsPageState();
+}
+
+class _ActiveListeningSettingsPageState
+    extends State<ActiveListeningSettingsPage> {
+  late bool _isEnabled;
+  late ActiveListeningStyle _selectedStyle;
+  late double _sensitivity;
+  late bool _showFPS;
+  late bool _rotateVinyl;
+  late bool _showProgressBar;
+
+  @override
+  void initState() {
+    super.initState();
+    _isEnabled = widget.config.isEnabled;
+    _selectedStyle = widget.config.style;
+    _sensitivity = widget.config.sensitivity;
+    _showFPS = widget.config.showFPS;
+    _rotateVinyl = widget.config.rotateVinyl;
+    _showProgressBar = widget.config.showProgressBar;
+  }
+
+  void _update() {
+    widget.config.isEnabled = _isEnabled;
+    widget.config.style = _selectedStyle;
+    widget.config.sensitivity = _sensitivity;
+    widget.config.showFPS = _showFPS;
+    widget.config.rotateVinyl = _rotateVinyl;
+    widget.config.showProgressBar = _showProgressBar;
+    widget.onUpdateConfig();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Column(
-      key: const ValueKey('ActiveListeningSettingsPage'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Header with Back Button
         Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.cyanAccent),
-              onPressed: onBack,
+              icon: const Icon(Icons.arrow_back),
+              onPressed: widget.onBack,
             ),
             const SizedBox(width: 8),
-            const Text(
-              'Active Listening',
+            Text(
+              'Active Overlay',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: isDark ? Colors.white : Colors.black87,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        const Divider(color: Colors.white24),
+        const SizedBox(height: 16),
+
         Expanded(
           child: ListView(
+            padding: const EdgeInsets.only(right: 8.0),
             children: [
-              // Master Feature Toggle
+              // Global Overlay Toggle
               SwitchListTile(
-                title: const Text('Enable Active Overlay',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
-                subtitle: const Text('Allow top pull-down or audio triggers',
-                    style: TextStyle(color: Colors.grey, fontSize: 11)),
-                value: config.isEnabled,
-                activeThumbColor: Colors.cyanAccent,
+                title: const Text('Enable Active Listening Overlay'),
+                subtitle: const Text('Slide down overlay on audio playback'),
+                value: _isEnabled,
+                activeColor: theme.colorScheme.primary,
                 onChanged: (val) {
-                  config.isEnabled = val;
-                  onUpdateConfig();
+                  setState(() => _isEnabled = val);
+                  _update();
                 },
               ),
-              if (config.isEnabled) ...[
-                const Divider(color: Colors.white12),
-                const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Text('Visualizer Style',
-                      style: TextStyle(
-                          color: Colors.cyanAccent,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600)),
+              const Divider(),
+              const SizedBox(height: 12),
+
+              Text(
+                'VISUALIZER MODE',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                  letterSpacing: 1.2,
                 ),
-                RadioListTile<ActiveListeningStyle>(
-                  title: const Text('Milkdrop Visualizer',
-                      style: TextStyle(color: Colors.white, fontSize: 14)),
-                  value: ActiveListeningStyle.milkdrop,
-                  groupValue: config.style,
-                  activeColor: Colors.cyanAccent,
-                  onChanged: (val) {
-                    if (val != null) {
-                      config.style = val;
-                      onUpdateConfig();
-                    }
-                  },
-                ),
-                RadioListTile<ActiveListeningStyle>(
-                  title: const Text('Rotating Vinyl & Track Info',
-                      style: TextStyle(color: Colors.white, fontSize: 14)),
-                  value: ActiveListeningStyle.vinyl,
-                  groupValue: config.style,
-                  activeColor: Colors.cyanAccent,
-                  onChanged: (val) {
-                    if (val != null) {
-                      config.style = val;
-                      onUpdateConfig();
-                    }
-                  },
-                ),
-                const Divider(color: Colors.white12),
-                // CONDITIONAL OPTIONS: Milkdrop Mode
-                if (config.style == ActiveListeningStyle.milkdrop) ...[
-                  const Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Text('Milkdrop Options',
-                        style: TextStyle(
-                            color: Colors.cyanAccent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600)),
-                  ),
-                  ListTile(
-                    title: const Text('Audio Sensitivity',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
-                    subtitle: Slider(
-                      value: config.sensitivity,
-                      min: 0.5,
-                      max: 2.0,
-                      divisions: 15,
-                      activeColor: Colors.cyanAccent,
-                      label: '${config.sensitivity.toStringAsFixed(1)}x',
-                      onChanged: (val) {
-                        config.sensitivity = val;
-                        onUpdateConfig();
+              ),
+              const SizedBox(height: 12),
+
+              // Visualizer Mode Cards
+              Row(
+                children: [
+                  Expanded(
+                    child: _StyleCard(
+                      title: 'Vinyl Mode',
+                      description: 'Rotating album wax, artwork, and metadata.',
+                      icon: Icons.album,
+                      isSelected: _selectedStyle == ActiveListeningStyle.vinyl,
+                      onTap: () {
+                        setState(
+                            () => _selectedStyle = ActiveListeningStyle.vinyl);
+                        _update();
                       },
                     ),
                   ),
-                  SwitchListTile(
-                    title: const Text('Show FPS Counter',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
-                    value: config.showFPS,
-                    activeThumbColor: Colors.cyanAccent,
-                    onChanged: (val) {
-                      config.showFPS = val;
-                      onUpdateConfig();
-                    },
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _StyleCard(
+                      title: 'Milkdrop Mode',
+                      description:
+                          'Audio reactive canvas and music visualizer.',
+                      icon: Icons.graphic_eq,
+                      isSelected:
+                          _selectedStyle == ActiveListeningStyle.milkdrop,
+                      onTap: () {
+                        setState(() =>
+                            _selectedStyle = ActiveListeningStyle.milkdrop);
+                        _update();
+                      },
+                    ),
                   ),
                 ],
-                // CONDITIONAL OPTIONS: Vinyl Mode
-                if (config.style == ActiveListeningStyle.vinyl) ...[
-                  const Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                    child: Text('Vinyl Options',
-                        style: TextStyle(
-                            color: Colors.cyanAccent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600)),
-                  ),
-                  SwitchListTile(
-                    title: const Text('Spinning Record Animation',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
-                    value: config.rotateVinyl,
-                    activeThumbColor: Colors.cyanAccent,
-                    onChanged: (val) {
-                      config.rotateVinyl = val;
-                      onUpdateConfig();
-                    },
-                  ),
-                  SwitchListTile(
-                    title: const Text('Display Track Progress Bar',
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
-                    value: config.showProgressBar,
-                    activeThumbColor: Colors.cyanAccent,
-                    onChanged: (val) {
-                      config.showProgressBar = val;
-                      onUpdateConfig();
-                    },
-                  ),
-                ],
+              ),
+              const SizedBox(height: 24),
+
+              Text(
+                'MODE OPTIONS',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // Vinyl Mode Options
+              if (_selectedStyle == ActiveListeningStyle.vinyl) ...[
+                SwitchListTile(
+                  title: const Text('Rotate Vinyl Record'),
+                  subtitle: const Text('Spin record disc during playback'),
+                  value: _rotateVinyl,
+                  activeColor: theme.colorScheme.primary,
+                  onChanged: (val) {
+                    setState(() => _rotateVinyl = val);
+                    _update();
+                  },
+                ),
+                SwitchListTile(
+                  title: const Text('Show Progress Bar'),
+                  subtitle:
+                      const Text('Display track timeline and duration counter'),
+                  value: _showProgressBar,
+                  activeColor: theme.colorScheme.primary,
+                  onChanged: (val) {
+                    setState(() => _showProgressBar = val);
+                    _update();
+                  },
+                ),
+              ],
+
+              // Milkdrop Mode Options
+              if (_selectedStyle == ActiveListeningStyle.milkdrop) ...[
+                ListTile(
+                  title: const Text('Audio Sensitivity'),
+                  subtitle: Text(_sensitivity.toStringAsFixed(1)),
+                ),
+                Slider(
+                  value: _sensitivity,
+                  min: 0.5,
+                  max: 2.0,
+                  divisions: 15,
+                  activeColor: theme.colorScheme.primary,
+                  label: _sensitivity.toStringAsFixed(1),
+                  onChanged: (val) {
+                    setState(() => _sensitivity = val);
+                    _update();
+                  },
+                ),
+                SwitchListTile(
+                  title: const Text('Show FPS Counter'),
+                  subtitle: const Text('Display rendering frame rate overlay'),
+                  value: _showFPS,
+                  activeColor: theme.colorScheme.primary,
+                  onChanged: (val) {
+                    setState(() => _showFPS = val);
+                    _update();
+                  },
+                ),
               ],
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _StyleCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _StyleCard({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? theme.colorScheme.primary
+                : (isDark ? Colors.white12 : Colors.black12),
+            width: isSelected ? 2.0 : 1.0,
+          ),
+          color: isSelected
+              ? theme.colorScheme.primary.withValues(alpha: 0.1)
+              : Colors.transparent,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
+              size: 28,
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : theme.iconTheme.color,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: TextStyle(
+                fontSize: 12,
+                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
