@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../models/widget_config.dart';
 import 'settings/main_settings_widget.dart';
+import 'widgets/clock_widget.dart';
+import 'widgets/koi_pond_widget.dart';
 import 'widgets/milkdrop_active_listening_widget.dart';
 import 'widgets/vinyl_active_listening_widget.dart';
-import 'widgets/clock_widget.dart';
 import 'widgets/weather_widget.dart';
 
 class StandbyView extends StatefulWidget {
@@ -39,6 +40,12 @@ class _StandbyViewState extends State<StandbyView> {
         title: 'Weather',
         type: StandbyWidgetType.weather,
         isEnabled: true,
+      ),
+      StandbyWidgetConfig(
+        id: 'koi_1',
+        title: 'Koi Pond',
+        type: StandbyWidgetType.koiPond,
+        isEnabled: false, // Default off per request
       ),
       StandbyWidgetConfig(
         id: 'settings_1',
@@ -84,6 +91,8 @@ class _StandbyViewState extends State<StandbyView> {
         return ClockWidget(config: config);
       case StandbyWidgetType.weather:
         return WeatherWidget(config: config);
+      case StandbyWidgetType.koiPond:
+        return const KoiPondWidget();
       case StandbyWidgetType.settings:
         return MainSettingsWidget(
           allWidgets: _widgets,
@@ -106,13 +115,14 @@ class _StandbyViewState extends State<StandbyView> {
             setState(() {
               _widgets.add(StandbyWidgetConfig(
                 id: '${type.name}_${DateTime.now().millisecondsSinceEpoch}',
-                title: type.name.toUpperCase(),
+                title: type == StandbyWidgetType.koiPond
+                    ? 'Koi Pond'
+                    : type.name.toUpperCase(),
                 type: type,
               ));
             });
           },
           onUpdateConfig: () {
-            // Trigger rebuild when any config changes, including theme toggles
             setState(() {});
           },
         );
@@ -189,7 +199,7 @@ class _StandbyViewState extends State<StandbyView> {
                     ),
                   ),
 
-                // Sliding Opaque Active Listening Overlay (stays dark for visualizer)
+                // Sliding Opaque Active Listening Overlay
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeOutCubic,

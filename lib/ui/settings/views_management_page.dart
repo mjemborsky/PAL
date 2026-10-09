@@ -66,6 +66,10 @@ class ViewsManagementPage extends StatelessWidget {
                   value: StandbyWidgetType.weather,
                   child: Text('Add Weather Widget'),
                 ),
+                const PopupMenuItem(
+                  value: StandbyWidgetType.koiPond,
+                  child: Text('Add Koi Pond Widget'),
+                ),
               ],
             ),
           ],
@@ -122,7 +126,11 @@ class ViewsManagementPage extends StatelessWidget {
                     ),
                   ),
                   subtitle: Text(
-                    isSettings ? 'Always active' : 'Tap to customize',
+                    isSettings
+                        ? 'Always active'
+                        : widgetItem.type == StandbyWidgetType.clock
+                            ? 'Tap to customize'
+                            : 'Active view',
                     style: TextStyle(
                       fontSize: 12,
                       color: isSettings
@@ -163,6 +171,8 @@ class ViewsManagementPage extends StatelessWidget {
         return Icons.access_time;
       case StandbyWidgetType.weather:
         return Icons.wb_sunny;
+      case StandbyWidgetType.koiPond:
+        return Icons.water;
       case StandbyWidgetType.settings:
         return Icons.tune;
     }

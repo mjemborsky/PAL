@@ -36,7 +36,7 @@ class WeatherWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${weather.temperatureF.round()}°F',
+                '${weather.temperatureF.round()}\u00B0F',
                 style: TextStyle(
                   fontSize: 76,
                   fontWeight: FontWeight.bold,
@@ -46,7 +46,7 @@ class WeatherWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '${weather.condition} • ${weather.locationName}',
+                '${weather.condition} \u2022 ${weather.locationName}',
                 style: TextStyle(
                   fontSize: 22,
                   color: secondaryTextColor,

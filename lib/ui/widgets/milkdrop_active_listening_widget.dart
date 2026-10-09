@@ -1,7 +1,10 @@
+import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/widget_config.dart';
+import '../../../services/mock_audio_service.dart';
 import '../../../services/mock_playback_service.dart';
 
 class MilkdropActiveListeningWidget extends StatefulWidget {
@@ -25,6 +28,8 @@ class _MilkdropActiveListeningWidgetState
     extends State<MilkdropActiveListeningWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _visualizerController;
+  StreamSubscription<List<double>>? _audioSubscription;
+  double _audioAmplitude = 0.5;
 
   @override
   void initState() {
@@ -36,7 +41,31 @@ class _MilkdropActiveListeningWidgetState
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Subscribe to MockAudioService stream
+    _audioSubscription?.cancel();
+    final audioService = Provider.of<MockAudioService>(context, listen: false);
+    _audioSubscription = audioService.audioStream.listen((pcmBuffer) {
+      if (!mounted) return;
+
+      // Calculate RMS amplitude from PCM sample frame
+      double sumSquares = 0.0;
+      for (final sample in pcmBuffer) {
+        sumSquares += sample * sample;
+      }
+      final rms = math.sqrt(sumSquares / pcmBuffer.length);
+
+      setState(() {
+        _audioAmplitude = rms.clamp(0.1, 1.5);
+      });
+    });
+  }
+
+  @override
   void dispose() {
+    _audioSubscription?.cancel();
     _visualizerController.dispose();
     super.dispose();
   }
@@ -72,6 +101,7 @@ class _MilkdropActiveListeningWidgetState
                           progress: _visualizerController.value,
                           isPlaying: playbackService.isPlaying,
                           sensitivity: widget.config.sensitivity,
+                          amplitude: _audioAmplitude,
                         ),
                       );
                     },
@@ -158,32 +188,35 @@ class _MilkdropPlaceholderPainter extends CustomPainter {
   final double progress;
   final bool isPlaying;
   final double sensitivity;
+  final double amplitude;
 
   _MilkdropPlaceholderPainter({
     required this.progress,
     required this.isPlaying,
     required this.sensitivity,
+    required this.amplitude,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Restrict all canvas painting operations strictly to widget bounds
     canvas.clipRect(Offset.zero & size);
 
     final center = Offset(size.width / 2, size.height / 2);
-    final maxRadius = (size.width / 2) * sensitivity;
+    // Base radius scales reactively with stream PCM amplitude and sensitivity multiplier
+    final baseMultiplier = isPlaying ? (amplitude * sensitivity) : 0.2;
+    final maxRadius = (size.width / 2) * baseMultiplier;
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = 2.5;
 
-    for (int i = 0; i < 5; i++) {
-      final radius = ((progress + (i * 0.2)) % 1.0) * maxRadius;
+    for (int i = 0; i < 6; i++) {
+      final radius = ((progress + (i * 0.16)) % 1.0) * maxRadius;
       paint.color = HSVColor.fromAHSV(
-        (1.0 - (radius / maxRadius)).clamp(0.0, 1.0),
+        (1.0 - (radius / (maxRadius > 0 ? maxRadius : 1))).clamp(0.0, 1.0),
         (progress * 360 + (i * 60)) % 360,
-        0.8,
-        0.9,
+        0.85,
+        0.95,
       ).toColor();
 
       canvas.drawCircle(center, radius, paint);
@@ -194,6 +227,7 @@ class _MilkdropPlaceholderPainter extends CustomPainter {
   bool shouldRepaint(covariant _MilkdropPlaceholderPainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.isPlaying != isPlaying ||
-        oldDelegate.sensitivity != sensitivity;
+        oldDelegate.sensitivity != sensitivity ||
+        oldDelegate.amplitude != amplitude;
   }
 }

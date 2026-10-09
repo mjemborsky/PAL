@@ -77,6 +77,14 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                     Navigator.pop(context);
                   },
                 ),
+                ListTile(
+                  leading: Icon(Icons.water, color: theme.colorScheme.primary),
+                  title: const Text('Koi Pond View'),
+                  onTap: () {
+                    widget.onAddWidget(StandbyWidgetType.koiPond);
+                    Navigator.pop(context);
+                  },
+                ),
               ],
             ),
           ),
@@ -162,7 +170,9 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                         ? Icons.access_time
                         : item.type == StandbyWidgetType.weather
                             ? Icons.wb_sunny
-                            : Icons.tune,
+                            : item.type == StandbyWidgetType.koiPond
+                                ? Icons.water
+                                : Icons.tune,
                     color: theme.colorScheme.primary,
                   ),
                   title: Text(
@@ -173,7 +183,11 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                     ),
                   ),
                   subtitle: Text(
-                    isSettings ? 'Always active' : 'Tap to configure',
+                    isSettings
+                        ? 'Always active'
+                        : item.type == StandbyWidgetType.clock
+                            ? 'Tap to configure'
+                            : 'Swipeable view',
                     style: TextStyle(
                       fontSize: 12,
                       color:

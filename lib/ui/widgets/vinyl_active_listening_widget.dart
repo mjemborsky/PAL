@@ -388,7 +388,7 @@ class _VinylActiveListeningWidgetState extends State<VinylActiveListeningWidget>
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    '${currentTrack.artist} • ${currentTrack.album}',
+                                    '${currentTrack.artist} \u2022 ${currentTrack.album}',
                                     style: TextStyle(
                                       fontSize: 19,
                                       color: subtitleTextColor,

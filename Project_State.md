@@ -144,18 +144,7 @@ flutter run -d edge --no-pub
 
 
 
-Get-ChildItem -Recurse -Include \*.dart, \*.yaml, \*.md -Exclude build, .dart\_tool, .git, project\_context.txt | ForEach-Object {
-
-&#x20;   "========================================`nFILE: $($\_.FullName)`n========================================`n"
-
-&#x20;   Get-Content $\_.FullName -Raw
-
-&#x20;   "`n`n"
-
-} | Set-Content -Encoding UTF8 project\_context.txt
-
-
-
+Get-ChildItem -Recurse -File | Where-Object { $_.Extension -in '.dart','.yaml','.md' -and $_.FullName -notmatch '[\\/](\.git|build|\.dart_tool|\.idea|\.vscode)[\\/]' } | ForEach-Object { "=== File: $($_.FullName) ==="; Get-Content $_.FullName -Raw } | Out-File project_context.txt -Encoding utf8
 
 
 

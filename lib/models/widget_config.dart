@@ -1,4 +1,4 @@
-enum StandbyWidgetType { clock, weather, settings }
+enum StandbyWidgetType { clock, weather, koiPond, settings }
 
 enum ActiveListeningStyle { milkdrop, vinyl }
 
