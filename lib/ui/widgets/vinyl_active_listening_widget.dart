@@ -316,11 +316,11 @@ class _VinylActiveListeningWidgetState extends State<VinylActiveListeningWidget>
                                         ),
 
                                         // 2. STATIONARY SPECULAR GLARE
-                                        IgnorePointer(
+                                        const IgnorePointer(
                                           child: CustomPaint(
-                                            size: const Size(360, 360),
+                                            size: Size(360, 360),
                                             painter:
-                                                const _VinylSpecularGlarePainter(),
+                                                _VinylSpecularGlarePainter(),
                                           ),
                                         ),
                                       ],

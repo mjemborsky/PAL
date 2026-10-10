@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +26,15 @@ void main() {
   );
 }
 
+class DesktopScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+      };
+}
+
 class PALApp extends StatelessWidget {
   const PALApp({super.key});
 
@@ -32,6 +42,7 @@ class PALApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scrollBehavior: DesktopScrollBehavior(),
       theme: ThemeData.dark(),
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.dark,

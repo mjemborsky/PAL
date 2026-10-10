@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/phone_data_models.dart';
 
 class MockWeatherService extends ChangeNotifier {
-  MockWeatherData _currentWeather = MockWeatherData(
+  final MockWeatherData _currentWeather = MockWeatherData(
     temperatureF: 68.0,
     tempMinF: 52.0,
     tempMaxF: 74.0,

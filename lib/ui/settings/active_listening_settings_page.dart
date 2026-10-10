@@ -86,7 +86,7 @@ class _ActiveListeningSettingsPageState
                 title: const Text('Enable Active Listening Overlay'),
                 subtitle: const Text('Slide down overlay on audio playback'),
                 value: _isEnabled,
-                activeColor: theme.colorScheme.primary,
+                activeThumbColor: theme.colorScheme.primary,
                 onChanged: (val) {
                   setState(() => _isEnabled = val);
                   _update();
@@ -159,7 +159,7 @@ class _ActiveListeningSettingsPageState
                   title: const Text('Rotate Vinyl Record'),
                   subtitle: const Text('Spin record disc during playback'),
                   value: _rotateVinyl,
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   onChanged: (val) {
                     setState(() => _rotateVinyl = val);
                     _update();
@@ -170,7 +170,7 @@ class _ActiveListeningSettingsPageState
                   subtitle:
                       const Text('Display track timeline and duration counter'),
                   value: _showProgressBar,
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   onChanged: (val) {
                     setState(() => _showProgressBar = val);
                     _update();
@@ -200,7 +200,7 @@ class _ActiveListeningSettingsPageState
                   title: const Text('Show FPS Counter'),
                   subtitle: const Text('Display rendering frame rate overlay'),
                   value: _showFPS,
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   onChanged: (val) {
                     setState(() => _showFPS = val);
                     _update();

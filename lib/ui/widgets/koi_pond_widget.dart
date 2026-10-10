@@ -274,8 +274,12 @@ class _KoiPondWidgetState extends State<KoiPondWidget>
 
       // --- SPEED-COUPLED ANGULAR TURNING (MUST SWIM TO TURN) ---
       double angleDiff = desiredAngle - fish.angle;
-      while (angleDiff < -math.pi) angleDiff += math.pi * 2;
-      while (angleDiff > math.pi) angleDiff -= math.pi * 2;
+      while (angleDiff < -math.pi) {
+        angleDiff += math.pi * 2;
+      }
+      while (angleDiff > math.pi) {
+        angleDiff -= math.pi * 2;
+      }
 
       // Turn capacity scales with forward speed (no spinning in place)
       final speedFactor = (fish.speed / 0.75).clamp(0.12, 1.0);
@@ -308,8 +312,12 @@ class _KoiPondWidgetState extends State<KoiPondWidget>
 
   double _blendAngles(double angleA, double angleB, double weight) {
     double diff = angleB - angleA;
-    while (diff < -math.pi) diff += math.pi * 2;
-    while (diff > math.pi) diff -= math.pi * 2;
+    while (diff < -math.pi) {
+      diff += math.pi * 2;
+    }
+    while (diff > math.pi) {
+      diff -= math.pi * 2;
+    }
     return angleA + (diff * weight);
   }
 
@@ -428,12 +436,12 @@ class _KoiPondPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // 1. Sunlit Teal Water Gradient Background
-    final pondGradient = RadialGradient(
-      center: const Alignment(-0.2, -0.3),
+    const pondGradient = RadialGradient(
+      center: Alignment(-0.2, -0.3),
       radius: 1.1,
       colors: [
-        const Color(0xFF2E6F7E),
-        const Color(0xFF17434D),
+        Color(0xFF2E6F7E),
+        Color(0xFF17434D),
       ],
     );
 

@@ -114,30 +114,21 @@ Goal: Replace mock audio with real hardware loopback and deploy to the target 80
 
 
 
-
-
-
-
-
+WORK
 
 Remove-Item -Recurse -Force .\\build
 
-
-
 $env:Path += ";C:\\Program Files\\Git\\cmd;C:\\Users\\michael.emborsky\\Dev\\flutter\\bin"
-
-
 
 flutter run -d edge --no-pub
 
 
 
+HOME
 
+Remove-Item -Recurse -Force .\\build
 
-
-
-
-
+flutter run -d windows
 
 
 

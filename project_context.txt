@@ -1,4 +1,4 @@
-﻿=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\analysis_options.yaml ===
+﻿=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\analysis_options.yaml ===
 # This file configures the analyzer, which statically analyzes Dart code to
 # check for errors, warnings, and lints.
 #
@@ -38,7 +38,7 @@ linter:
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\Project_State.md ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\Project_State.md ===
 Portable Ambient Link - Project State
 
 Summary
@@ -155,30 +155,21 @@ Goal: Replace mock audio with real hardware loopback and deploy to the target 80
 
 
 
-
-
-
-
-
+WORK
 
 Remove-Item -Recurse -Force .\\build
 
-
-
 $env:Path += ";C:\\Program Files\\Git\\cmd;C:\\Users\\michael.emborsky\\Dev\\flutter\\bin"
-
-
 
 flutter run -d edge --no-pub
 
 
 
+HOME
 
+Remove-Item -Recurse -Force .\\build
 
-
-
-
-
+flutter run -d windows
 
 
 
@@ -299,7 +290,7 @@ The other machine is my personal computer. This is not managed and I can do what
 I play to do a lot of developing on the work one if possible and then more of the testing on the personal computer.
 
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\pubspec.yaml ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\pubspec.yaml ===
 name: pal
 description: Portable Ambient Link - UI and Visualizer Host
 publish_to: 'none' # Prevents accidental publishing to pub.dev
@@ -340,7 +331,7 @@ flutter:
   # # Asset declaration for Standby Mode artwork and fallbacks
   # assets:
   #   # - assets/images/
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\README.md ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\README.md ===
 # P.A.L.
 Portable Ambient Link
 
@@ -353,13 +344,13 @@ This device is intended as a visualizer for audio playback for a linked device. 
 
 https://www.youtube.com/watch?v=okkQ1Q5u1jk
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\ios\Runner\Assets.xcassets\LaunchImage.imageset\README.md ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\ios\Runner\Assets.xcassets\LaunchImage.imageset\README.md ===
 # Launch Screen Assets
 
 You can customize the launch screen with your own desired assets by replacing the image files in this directory.
 
 You can also do it by opening your Flutter project's Xcode project with `open ios/Runner.xcworkspace`, selecting `Runner/Assets.xcassets` in the Project Navigator and dropping in the desired images.
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\main.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\main.dart ===
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -402,7 +393,7 @@ class PALApp extends StatelessWidget {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\models\phone_data_models.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\models\phone_data_models.dart ===
 enum NotificationCategory { message, system, call, social }
 
 class TrackInfo {
@@ -481,8 +472,8 @@ class MockPhoto {
   });
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\models\widget_config.dart ===
-enum StandbyWidgetType { clock, weather, settings }
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\models\widget_config.dart ===
+enum StandbyWidgetType { clock, weather, koiPond, settings }
 
 enum ActiveListeningStyle { milkdrop, vinyl }
 
@@ -546,7 +537,7 @@ class StandbyWidgetConfig {
   });
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\services\mock_audio_service.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\services\mock_audio_service.dart ===
 import 'dart:async';
 import 'dart:math';
 
@@ -586,7 +577,7 @@ class MockAudioService {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\services\mock_notification_service.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\services\mock_notification_service.dart ===
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/phone_data_models.dart';
@@ -656,16 +647,16 @@ class MockNotificationService extends ChangeNotifier {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\services\mock_phone_status_service.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\services\mock_phone_status_service.dart ===
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 class MockPhoneStatusService extends ChangeNotifier {
   int _batteryLevel = 84;
-  bool _isCharging = false;
-  int _wifiSignalStrength = 3; // 0 to 4
-  bool _isBluetoothConnected = true;
-  String _deviceName = "User's Phone";
+  final bool _isCharging = false;
+  final int _wifiSignalStrength = 3; // 0 to 4
+  final bool _isBluetoothConnected = true;
+  final String _deviceName = "User's Phone";
 
   int get batteryLevel => _batteryLevel;
   bool get isCharging => _isCharging;
@@ -683,7 +674,7 @@ class MockPhoneStatusService extends ChangeNotifier {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\services\mock_photo_service.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\services\mock_photo_service.dart ===
 import 'package:flutter/foundation.dart';
 import '../models/phone_data_models.dart';
 
@@ -701,7 +692,7 @@ class MockPhotoService extends ChangeNotifier {
   List<MockPhoto> get photos => List.unmodifiable(_photos);
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\services\mock_playback_service.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\services\mock_playback_service.dart ===
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/phone_data_models.dart';
@@ -854,12 +845,12 @@ class MockPlaybackService extends ChangeNotifier {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\services\mock_weather_service.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\services\mock_weather_service.dart ===
 import 'package:flutter/foundation.dart';
 import '../models/phone_data_models.dart';
 
 class MockWeatherService extends ChangeNotifier {
-  MockWeatherData _currentWeather = MockWeatherData(
+  final MockWeatherData _currentWeather = MockWeatherData(
     temperatureF: 68.0,
     tempMinF: 52.0,
     tempMaxF: 74.0,
@@ -878,14 +869,15 @@ class MockWeatherService extends ChangeNotifier {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\standby_view.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\standby_view.dart ===
 import 'package:flutter/material.dart';
 
 import '../models/widget_config.dart';
 import 'settings/main_settings_widget.dart';
+import 'widgets/clock_widget.dart';
+import 'widgets/koi_pond_widget.dart';
 import 'widgets/milkdrop_active_listening_widget.dart';
 import 'widgets/vinyl_active_listening_widget.dart';
-import 'widgets/clock_widget.dart';
 import 'widgets/weather_widget.dart';
 
 class StandbyView extends StatefulWidget {
@@ -920,6 +912,12 @@ class _StandbyViewState extends State<StandbyView> {
         title: 'Weather',
         type: StandbyWidgetType.weather,
         isEnabled: true,
+      ),
+      StandbyWidgetConfig(
+        id: 'koi_1',
+        title: 'Koi Pond',
+        type: StandbyWidgetType.koiPond,
+        isEnabled: false, // Default off per request
       ),
       StandbyWidgetConfig(
         id: 'settings_1',
@@ -965,6 +963,8 @@ class _StandbyViewState extends State<StandbyView> {
         return ClockWidget(config: config);
       case StandbyWidgetType.weather:
         return WeatherWidget(config: config);
+      case StandbyWidgetType.koiPond:
+        return const KoiPondWidget();
       case StandbyWidgetType.settings:
         return MainSettingsWidget(
           allWidgets: _widgets,
@@ -987,13 +987,14 @@ class _StandbyViewState extends State<StandbyView> {
             setState(() {
               _widgets.add(StandbyWidgetConfig(
                 id: '${type.name}_${DateTime.now().millisecondsSinceEpoch}',
-                title: type.name.toUpperCase(),
+                title: type == StandbyWidgetType.koiPond
+                    ? 'Koi Pond'
+                    : type.name.toUpperCase(),
                 type: type,
               ));
             });
           },
           onUpdateConfig: () {
-            // Trigger rebuild when any config changes, including theme toggles
             setState(() {});
           },
         );
@@ -1070,7 +1071,7 @@ class _StandbyViewState extends State<StandbyView> {
                     ),
                   ),
 
-                // Sliding Opaque Active Listening Overlay (stays dark for visualizer)
+                // Sliding Opaque Active Listening Overlay
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeOutCubic,
@@ -1094,7 +1095,7 @@ class _StandbyViewState extends State<StandbyView> {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\settings\active_listening_settings_page.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\settings\active_listening_settings_page.dart ===
 import 'package:flutter/material.dart';
 
 import '../../models/widget_config.dart';
@@ -1183,7 +1184,7 @@ class _ActiveListeningSettingsPageState
                 title: const Text('Enable Active Listening Overlay'),
                 subtitle: const Text('Slide down overlay on audio playback'),
                 value: _isEnabled,
-                activeColor: theme.colorScheme.primary,
+                activeThumbColor: theme.colorScheme.primary,
                 onChanged: (val) {
                   setState(() => _isEnabled = val);
                   _update();
@@ -1256,7 +1257,7 @@ class _ActiveListeningSettingsPageState
                   title: const Text('Rotate Vinyl Record'),
                   subtitle: const Text('Spin record disc during playback'),
                   value: _rotateVinyl,
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   onChanged: (val) {
                     setState(() => _rotateVinyl = val);
                     _update();
@@ -1267,7 +1268,7 @@ class _ActiveListeningSettingsPageState
                   subtitle:
                       const Text('Display track timeline and duration counter'),
                   value: _showProgressBar,
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   onChanged: (val) {
                     setState(() => _showProgressBar = val);
                     _update();
@@ -1297,7 +1298,7 @@ class _ActiveListeningSettingsPageState
                   title: const Text('Show FPS Counter'),
                   subtitle: const Text('Display rendering frame rate overlay'),
                   value: _showFPS,
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   onChanged: (val) {
                     setState(() => _showFPS = val);
                     _update();
@@ -1383,7 +1384,7 @@ class _StyleCard extends StatelessWidget {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\settings\general_settings_page.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\settings\general_settings_page.dart ===
 import 'package:flutter/material.dart';
 import '../../models/widget_config.dart';
 
@@ -1482,7 +1483,7 @@ class GeneralSettingsPage extends StatelessWidget {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\settings\main_settings_widget.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\settings\main_settings_widget.dart ===
 import 'package:flutter/material.dart';
 
 import '../../models/widget_config.dart';
@@ -1559,6 +1560,14 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                   title: const Text('Weather View'),
                   onTap: () {
                     widget.onAddWidget(StandbyWidgetType.weather);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.water, color: theme.colorScheme.primary),
+                  title: const Text('Koi Pond View'),
+                  onTap: () {
+                    widget.onAddWidget(StandbyWidgetType.koiPond);
                     Navigator.pop(context);
                   },
                 ),
@@ -1647,7 +1656,9 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                         ? Icons.access_time
                         : item.type == StandbyWidgetType.weather
                             ? Icons.wb_sunny
-                            : Icons.tune,
+                            : item.type == StandbyWidgetType.koiPond
+                                ? Icons.water
+                                : Icons.tune,
                     color: theme.colorScheme.primary,
                   ),
                   title: Text(
@@ -1658,7 +1669,11 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                     ),
                   ),
                   subtitle: Text(
-                    isSettings ? 'Always active' : 'Tap to configure',
+                    isSettings
+                        ? 'Always active'
+                        : item.type == StandbyWidgetType.clock
+                            ? 'Tap to configure'
+                            : 'Swipeable view',
                     style: TextStyle(
                       fontSize: 12,
                       color:
@@ -1678,7 +1693,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                       if (!isSettings)
                         Switch(
                           value: item.isEnabled,
-                          activeColor: theme.colorScheme.primary,
+                          activeThumbColor: theme.colorScheme.primary,
                           onChanged: (enabled) =>
                               widget.onToggle(item.id, enabled),
                         ),
@@ -1847,7 +1862,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\settings\views_management_page.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\settings\views_management_page.dart ===
 import 'package:flutter/material.dart';
 import '../../models/widget_config.dart';
 
@@ -1916,6 +1931,10 @@ class ViewsManagementPage extends StatelessWidget {
                   value: StandbyWidgetType.weather,
                   child: Text('Add Weather Widget'),
                 ),
+                const PopupMenuItem(
+                  value: StandbyWidgetType.koiPond,
+                  child: Text('Add Koi Pond Widget'),
+                ),
               ],
             ),
           ],
@@ -1972,7 +1991,11 @@ class ViewsManagementPage extends StatelessWidget {
                     ),
                   ),
                   subtitle: Text(
-                    isSettings ? 'Always active' : 'Tap to customize',
+                    isSettings
+                        ? 'Always active'
+                        : widgetItem.type == StandbyWidgetType.clock
+                            ? 'Tap to customize'
+                            : 'Active view',
                     style: TextStyle(
                       fontSize: 12,
                       color: isSettings
@@ -2013,13 +2036,15 @@ class ViewsManagementPage extends StatelessWidget {
         return Icons.access_time;
       case StandbyWidgetType.weather:
         return Icons.wb_sunny;
+      case StandbyWidgetType.koiPond:
+        return Icons.water;
       case StandbyWidgetType.settings:
         return Icons.tune;
     }
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\settings\details\clock_detail_widget.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\settings\details\clock_detail_widget.dart ===
 import 'package:flutter/material.dart';
 import '../../../models/widget_config.dart';
 
@@ -2206,7 +2231,7 @@ class _ClockDetailWidgetState extends State<ClockDetailWidget> {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\widgets\clock_widget.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\widgets\clock_widget.dart ===
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -2466,11 +2491,691 @@ class _AnalogClockPainter extends CustomPainter {
   bool shouldRepaint(covariant _AnalogClockPainter oldDelegate) => true;
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\widgets\milkdrop_active_listening_widget.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\widgets\koi_pond_widget.dart ===
+import 'dart:async';
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+
+enum FishState { wandering, gliding, fleeing, curious }
+
+class KoiPattern {
+  final Color bodyColor;
+  final Color spotColor;
+  final Color secondarySpotColor;
+
+  const KoiPattern({
+    required this.bodyColor,
+    required this.spotColor,
+    required this.secondarySpotColor,
+  });
+}
+
+class KoiFish {
+  Offset position;
+  double angle; // radians
+  double speed;
+  double targetSpeed;
+  final KoiPattern pattern;
+  double scale;
+  FishState state = FishState.wandering;
+
+  // Steering & Dynamic Spine Physics
+  Offset? targetDestination;
+  double tailPhase = 0.0;
+  double currentTurnRate = 0.0;
+  double smoothedTurnBend = 0.0; // Low-pass filter for smooth curve bending
+
+  // Timers & Spatial Perception
+  int stateTimer = 0;
+  int noticeDelayTimer = 0;
+
+  KoiFish({
+    required this.position,
+    required this.angle,
+    required this.pattern,
+    this.scale = 1.0,
+    this.speed = 0.8,
+    this.targetSpeed = 0.8,
+  }) {
+    tailPhase = math.Random().nextDouble() * math.pi * 2;
+    stateTimer = math.Random().nextInt(200) + 100;
+  }
+}
+
+class WaterRipple {
+  final Offset location;
+  double radius;
+  double opacity;
+  final double maxRadius;
+
+  WaterRipple({
+    required this.location,
+    this.radius = 2.0,
+    this.opacity = 0.8,
+    this.maxRadius = 70.0,
+  });
+}
+
+class KoiPondWidget extends StatefulWidget {
+  final VoidCallback? onDismiss;
+
+  const KoiPondWidget({super.key, this.onDismiss});
+
+  @override
+  State<KoiPondWidget> createState() => _KoiPondWidgetState();
+}
+
+class _KoiPondWidgetState extends State<KoiPondWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ticker;
+  final List<KoiFish> _fishList = [];
+  final List<WaterRipple> _ripples = [];
+
+  // Gesture tracking
+  Offset? _touchPosition;
+  Timer? _holdTimer;
+  bool _isHolding = false;
+
+  final math.Random _random = math.Random();
+
+  @override
+  void initState() {
+    super.initState();
+    _initFish();
+
+    _ticker = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat();
+
+    _ticker.addListener(_updatePhysics);
+  }
+
+  void _initFish() {
+    final patterns = [
+      const KoiPattern(
+        bodyColor: Color(0xFFF7F4EF),
+        spotColor: Color(0xFFD32F2F),
+        secondarySpotColor: Colors.transparent,
+      ),
+      const KoiPattern(
+        bodyColor: Color(0xFFFAF8F5),
+        spotColor: Color(0xFFE64A19),
+        secondarySpotColor: Color(0xFF212121),
+      ),
+      const KoiPattern(
+        bodyColor: Color(0xFFFFB300),
+        spotColor: Color(0xFFFFE082),
+        secondarySpotColor: Colors.transparent,
+      ),
+      const KoiPattern(
+        bodyColor: Color(0xFF1C1A1A),
+        spotColor: Color(0xFFF57C00),
+        secondarySpotColor: Color(0xFFEEEEEE),
+      ),
+      const KoiPattern(
+        bodyColor: Color(0xFFECEFF1),
+        spotColor: Color(0xFFCFD8DC),
+        secondarySpotColor: Colors.transparent,
+      ),
+    ];
+
+    for (int i = 0; i < 6; i++) {
+      _fishList.add(
+        KoiFish(
+          position: Offset(
+            120 + _random.nextDouble() * 560,
+            100 + _random.nextDouble() * 280,
+          ),
+          angle: _random.nextDouble() * math.pi * 2,
+          pattern: patterns[i % patterns.length],
+          scale: 0.85 + _random.nextDouble() * 0.35,
+          speed: 0.6 + _random.nextDouble() * 0.3,
+          targetSpeed: 0.6 + _random.nextDouble() * 0.3,
+        ),
+      );
+    }
+  }
+
+  void _updatePhysics() {
+    const pondWidth = 800.0;
+    const pondHeight = 480.0;
+
+    // 1. Update Water Ripples
+    for (int i = _ripples.length - 1; i >= 0; i--) {
+      final r = _ripples[i];
+      r.radius += 1.4;
+      r.opacity -= 0.012;
+      if (r.opacity <= 0 || r.radius >= r.maxRadius) {
+        _ripples.removeAt(i);
+      }
+    }
+
+    // 2. Update Fish AI & Natural Kinematics
+    for (int i = 0; i < _fishList.length; i++) {
+      final fish = _fishList[i];
+
+      // Tail phase linked smoothly to swimming speed
+      fish.tailPhase += (fish.speed * 0.09).clamp(0.02, 0.18);
+      fish.stateTimer--;
+
+      if (_isHolding && _touchPosition != null) {
+        final distToTouch = (fish.position - _touchPosition!).distance;
+
+        if (distToTouch < 380) {
+          if (fish.noticeDelayTimer > 0) {
+            fish.noticeDelayTimer--;
+          } else {
+            fish.state = FishState.curious;
+            if (distToTouch < 60) {
+              fish.targetSpeed = 0.22;
+              fish.targetDestination = null;
+            } else {
+              fish.targetDestination = _touchPosition;
+              fish.targetSpeed = 0.70;
+            }
+          }
+        }
+      } else if (fish.targetDestination != null &&
+          fish.state == FishState.fleeing) {
+        final distToDanger = (fish.position - fish.targetDestination!).distance;
+        if (distToDanger > 280) {
+          fish.state = FishState.wandering;
+          fish.targetDestination = null;
+        }
+      } else {
+        if (fish.stateTimer <= 0) {
+          if (fish.state == FishState.gliding) {
+            fish.state = FishState.wandering;
+            fish.stateTimer = _random.nextInt(180) + 120;
+            fish.targetDestination = Offset(
+              90 + _random.nextDouble() * (pondWidth - 180),
+              90 + _random.nextDouble() * (pondHeight - 180),
+            );
+          } else {
+            fish.state = FishState.gliding;
+            fish.stateTimer = _random.nextInt(120) + 60;
+            fish.targetSpeed = 0.10;
+          }
+        }
+
+        if (fish.state == FishState.wandering) {
+          fish.targetSpeed = 0.45 + _random.nextDouble() * 0.25;
+        }
+      }
+
+      // Smooth Speed Interpolation
+      fish.speed += (fish.targetSpeed - fish.speed) * 0.04;
+
+      // --- STEERING CALCULATION ---
+      double desiredAngle = fish.angle;
+
+      if (fish.targetDestination != null) {
+        Offset desiredVector;
+        if (fish.state == FishState.fleeing) {
+          desiredVector = fish.position - fish.targetDestination!;
+        } else {
+          desiredVector = fish.targetDestination! - fish.position;
+        }
+
+        if (desiredVector.distance > 8) {
+          desiredAngle = math.atan2(desiredVector.dy, desiredVector.dx);
+        }
+      }
+
+      // --- SOFT FISH-TO-FISH SEPARATION ---
+      Offset separationVector = Offset.zero;
+      for (int j = 0; j < _fishList.length; j++) {
+        if (i == j) continue;
+        final other = _fishList[j];
+        final diff = fish.position - other.position;
+        final distance = diff.distance;
+
+        const minDistance = 75.0;
+        if (distance < minDistance && distance > 0) {
+          final pushStrength = (minDistance - distance) / minDistance;
+          separationVector += (diff / distance) * pushStrength;
+        }
+      }
+
+      if (separationVector != Offset.zero) {
+        final separationAngle =
+            math.atan2(separationVector.dy, separationVector.dx);
+        desiredAngle = _blendAngles(desiredAngle, separationAngle, 0.35);
+      }
+
+      // --- SMOOTH CURVED WALL AVOIDANCE ---
+      const wallMargin = 100.0;
+      Offset wallAvoidance = Offset.zero;
+
+      if (fish.position.dx < wallMargin) {
+        wallAvoidance += Offset(wallMargin - fish.position.dx, 0);
+      } else if (fish.position.dx > pondWidth - wallMargin) {
+        wallAvoidance += Offset((pondWidth - wallMargin) - fish.position.dx, 0);
+      }
+
+      if (fish.position.dy < wallMargin) {
+        wallAvoidance += Offset(0, wallMargin - fish.position.dy);
+      } else if (fish.position.dy > pondHeight - wallMargin) {
+        wallAvoidance +=
+            Offset(0, (pondHeight - wallMargin) - fish.position.dy);
+      }
+
+      if (wallAvoidance != Offset.zero) {
+        final wallAngle = math.atan2(wallAvoidance.dy, wallAvoidance.dx);
+        desiredAngle = _blendAngles(desiredAngle, wallAngle, 0.65);
+      }
+
+      // --- SPEED-COUPLED ANGULAR TURNING (MUST SWIM TO TURN) ---
+      double angleDiff = desiredAngle - fish.angle;
+      while (angleDiff < -math.pi) {
+        angleDiff += math.pi * 2;
+      }
+      while (angleDiff > math.pi) {
+        angleDiff -= math.pi * 2;
+      }
+
+      // Turn capacity scales with forward speed (no spinning in place)
+      final speedFactor = (fish.speed / 0.75).clamp(0.12, 1.0);
+      final maxTurnRate =
+          (fish.state == FishState.fleeing ? 0.030 : 0.016) * speedFactor;
+      final clampedTurn = angleDiff.clamp(-maxTurnRate, maxTurnRate);
+
+      fish.angle += clampedTurn;
+      fish.currentTurnRate = clampedTurn;
+
+      // Low-pass filter to smooth spine curve bending
+      fish.smoothedTurnBend += (clampedTurn - fish.smoothedTurnBend) * 0.08;
+
+      // Forward position update along head direction
+      final velocity = Offset(
+        math.cos(fish.angle) * fish.speed,
+        math.sin(fish.angle) * fish.speed,
+      );
+      fish.position += velocity;
+
+      // Safety perimeter clamp
+      fish.position = Offset(
+        fish.position.dx.clamp(35.0, pondWidth - 35.0),
+        fish.position.dy.clamp(35.0, pondHeight - 35.0),
+      );
+    }
+
+    setState(() {});
+  }
+
+  double _blendAngles(double angleA, double angleB, double weight) {
+    double diff = angleB - angleA;
+    while (diff < -math.pi) {
+      diff += math.pi * 2;
+    }
+    while (diff > math.pi) {
+      diff -= math.pi * 2;
+    }
+    return angleA + (diff * weight);
+  }
+
+  void _onPointerDown(PointerDownEvent event) {
+    _touchPosition = event.localPosition;
+
+    const maxNoticeRadius = 380.0;
+    for (final fish in _fishList) {
+      final distance = (fish.position - event.localPosition).distance;
+      if (distance < maxNoticeRadius) {
+        fish.noticeDelayTimer = ((distance / maxNoticeRadius) * 110).round();
+      }
+    }
+
+    _holdTimer?.cancel();
+    _holdTimer = Timer(const Duration(milliseconds: 550), () {
+      if (mounted) {
+        setState(() {
+          _isHolding = true;
+        });
+      }
+    });
+
+    _triggerSpatialScareRipple(event.localPosition);
+  }
+
+  void _onPointerMove(PointerMoveEvent event) {
+    _touchPosition = event.localPosition;
+  }
+
+  void _onPointerUp(PointerUpEvent event) {
+    _holdTimer?.cancel();
+    _isHolding = false;
+    _touchPosition = null;
+
+    for (final fish in _fishList) {
+      fish.noticeDelayTimer = 0;
+      if (fish.state == FishState.curious) {
+        fish.state = FishState.wandering;
+        fish.targetDestination = null;
+      }
+    }
+  }
+
+  void _triggerSpatialScareRipple(Offset tapPosition) {
+    _ripples.add(WaterRipple(location: tapPosition, maxRadius: 80.0));
+    _ripples.add(WaterRipple(
+        location: tapPosition, maxRadius: 45.0, radius: 1.0, opacity: 0.8));
+
+    const scareRadius = 280.0;
+
+    for (final fish in _fishList) {
+      final distance = (fish.position - tapPosition).distance;
+
+      if (distance < scareRadius) {
+        fish.state = FishState.fleeing;
+        fish.targetDestination = tapPosition;
+
+        final distanceFactor = (1.0 - (distance / scareRadius)).clamp(0.0, 1.0);
+        fish.targetSpeed = 1.8 + (2.5 * distanceFactor);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _holdTimer?.cancel();
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 800,
+      height: 480,
+      color: const Color(0xFF143840),
+      child: Listener(
+        onPointerDown: _onPointerDown,
+        onPointerMove: _onPointerMove,
+        onPointerUp: _onPointerUp,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onVerticalDragEnd: (details) {
+            final velocityY = details.primaryVelocity ?? 0.0;
+            if (velocityY < -300) widget.onDismiss?.call();
+          },
+          child: CustomPaint(
+            size: const Size(800, 480),
+            painter: _KoiPondPainter(
+              fishList: _fishList,
+              ripples: _ripples,
+              touchPosition: _touchPosition,
+              isHolding: _isHolding,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _KoiPondPainter extends CustomPainter {
+  final List<KoiFish> fishList;
+  final List<WaterRipple> ripples;
+  final Offset? touchPosition;
+  final bool isHolding;
+
+  _KoiPondPainter({
+    required this.fishList,
+    required this.ripples,
+    required this.touchPosition,
+    required this.isHolding,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 1. Sunlit Teal Water Gradient Background
+    const pondGradient = RadialGradient(
+      center: Alignment(-0.2, -0.3),
+      radius: 1.1,
+      colors: [
+        Color(0xFF2E6F7E),
+        Color(0xFF17434D),
+      ],
+    );
+
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()..shader = pondGradient.createShader(Offset.zero & size),
+    );
+
+    // 2. Draw Water Ripples
+    for (final r in ripples) {
+      final ripplePaint = Paint()
+        ..color =
+            Colors.white.withValues(alpha: (r.opacity * 0.7).clamp(0.0, 1.0))
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5;
+      canvas.drawCircle(r.location, r.radius, ripplePaint);
+    }
+
+    // 3. Food Pulse Indicator (when holding)
+    if (isHolding && touchPosition != null) {
+      final foodGlow = Paint()
+        ..color = const Color(0xFFFFD54F).withValues(alpha: 0.25)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
+      canvas.drawCircle(touchPosition!, 16.0, foodGlow);
+
+      final foodCore = Paint()..color = const Color(0xFFFFF8E1);
+      canvas.drawCircle(touchPosition!, 3.5, foodCore);
+    }
+
+    // 4. Draw Koi Fish
+    for (final fish in fishList) {
+      _drawKoi(canvas, fish);
+    }
+
+    // 5. Draw Lily Pads
+    _drawLilyPads(canvas, size);
+  }
+
+  void _drawKoi(Canvas canvas, KoiFish fish) {
+    canvas.save();
+    canvas.translate(fish.position.dx, fish.position.dy);
+    canvas.rotate(fish.angle);
+    canvas.scale(fish.scale);
+
+    // Translucent Depth Shadow
+    canvas.save();
+    canvas.translate(14, 16);
+    _paintFishBody(
+      canvas,
+      fish,
+      Paint()..color = Colors.black.withValues(alpha: 0.18),
+      Paint()..color = Colors.black.withValues(alpha: 0.18),
+      Paint()..color = Colors.black.withValues(alpha: 0.18),
+      Paint()..color = Colors.black.withValues(alpha: 0.06),
+    );
+    canvas.restore();
+
+    // Main Body Paints
+    final mainPaint = Paint()
+      ..color = fish.pattern.bodyColor
+      ..style = PaintingStyle.fill;
+    final spotPaint = Paint()
+      ..color = fish.pattern.spotColor
+      ..style = PaintingStyle.fill;
+    final secSpotPaint = Paint()
+      ..color = fish.pattern.secondarySpotColor
+      ..style = PaintingStyle.fill;
+    final finPaint = Paint()
+      ..color = mainPaint.color.withValues(alpha: 0.75)
+      ..style = PaintingStyle.fill;
+
+    _paintFishBody(canvas, fish, mainPaint, spotPaint, secSpotPaint, finPaint);
+
+    canvas.restore();
+  }
+
+  void _paintFishBody(
+    Canvas canvas,
+    KoiFish fish,
+    Paint mainPaint,
+    Paint spotPaint,
+    Paint secSpotPaint,
+    Paint finPaint,
+  ) {
+    final phase = fish.tailPhase;
+
+    // NOSE ANCHORED COORDINATE SYSTEM (Origin X=0 is Nose)
+    // Spine offsets: Swimming wave + Parabolic turn arc bending (d^1.3)
+    double getSpineY(double distBack) {
+      final swimAmp = (distBack / 80.0) * (distBack / 80.0) * 9.5;
+      final swimWave = math.sin(phase - (distBack * 0.042)) * swimAmp;
+
+      final turnArc =
+          (fish.smoothedTurnBend * 130.0) * math.pow(distBack / 80.0, 1.3);
+
+      return swimWave + turnArc;
+    }
+
+    const noseX = 0.0;
+    const shoulderX = -18.0;
+    const shoulderW = 15.0;
+    const midX = -38.0;
+    const midW = 12.0;
+    const tailStemX = -58.0;
+    const tailStemW = 4.5;
+    const tailTipX = -80.0;
+
+    final shoulderY = getSpineY(18.0);
+    final midY = getSpineY(38.0);
+    final tailStemY = getSpineY(58.0);
+    final tailTipY = getSpineY(80.0);
+
+    // DYNAMIC TORSO PATH
+    final bodyPath = Path()..moveTo(noseX, 0.0);
+
+    // Upper Flank
+    bodyPath.cubicTo(
+      shoulderX + 6,
+      shoulderY - shoulderW,
+      midX + 4,
+      midY - midW,
+      tailStemX,
+      tailStemY - tailStemW,
+    );
+    bodyPath.lineTo(tailStemX - 2, tailStemY);
+
+    // Lower Flank
+    bodyPath.cubicTo(
+      midX + 4,
+      midY + midW,
+      shoulderX + 6,
+      shoulderY + shoulderW,
+      noseX,
+      0.0,
+    );
+    bodyPath.close();
+
+    canvas.drawPath(bodyPath, mainPaint);
+
+    // DORSAL BACK FIN
+    final dorsalFinPath = Path()
+      ..moveTo(shoulderX - 2, shoulderY)
+      ..quadraticBezierTo(midX + 2, midY - 4.5, tailStemX + 6, tailStemY)
+      ..quadraticBezierTo(midX + 2, midY - 1.0, shoulderX - 2, shoulderY);
+    canvas.drawPath(dorsalFinPath, finPaint);
+
+    // SPOTS
+    canvas.save();
+    canvas.translate(shoulderX + 2, shoulderY);
+    canvas.drawOval(
+        Rect.fromCenter(center: Offset.zero, width: 16, height: 12), spotPaint);
+    canvas.restore();
+
+    canvas.save();
+    canvas.translate(midX, midY);
+    canvas.drawOval(
+        Rect.fromCenter(center: Offset.zero, width: 14, height: 10), spotPaint);
+    if (secSpotPaint.color != Colors.transparent) {
+      canvas.drawOval(Rect.fromCenter(center: Offset.zero, width: 8, height: 6),
+          secSpotPaint);
+    }
+    canvas.restore();
+
+    // PECTORAL FINS (Attached at shoulder flanks)
+    final leftFinBaseY = shoulderY - shoulderW + 2;
+    final leftFin = Path()
+      ..moveTo(shoulderX + 4, leftFinBaseY)
+      ..quadraticBezierTo(
+          shoulderX + 2, leftFinBaseY - 14, shoulderX - 14, leftFinBaseY - 12)
+      ..quadraticBezierTo(
+          shoulderX - 8, leftFinBaseY - 3, shoulderX - 2, leftFinBaseY);
+    canvas.drawPath(leftFin, finPaint);
+
+    final rightFinBaseY = shoulderY + shoulderW - 2;
+    final rightFin = Path()
+      ..moveTo(shoulderX + 4, rightFinBaseY)
+      ..quadraticBezierTo(
+          shoulderX + 2, rightFinBaseY + 14, shoulderX - 14, rightFinBaseY + 12)
+      ..quadraticBezierTo(
+          shoulderX - 8, rightFinBaseY - 3, shoulderX - 2, rightFinBaseY);
+    canvas.drawPath(rightFin, finPaint);
+
+    // FLOWING TAIL FIN
+    final tailFinPath = Path()
+      ..moveTo(tailStemX, tailStemY)
+      ..quadraticBezierTo(
+          tailStemX - 12, tailStemY - 10, tailTipX, tailTipY - 15)
+      ..quadraticBezierTo(tailStemX - 10, tailTipY, tailTipX, tailTipY + 15)
+      ..quadraticBezierTo(tailStemX - 12, tailStemY + 10, tailStemX, tailStemY);
+
+    canvas.drawPath(tailFinPath, finPaint);
+  }
+
+  void _drawLilyPads(Canvas canvas, Size size) {
+    final padPaint = Paint()
+      ..color = const Color(0xFF2D7D46)
+      ..style = PaintingStyle.fill;
+
+    final padHighlight = Paint()
+      ..color = const Color(0xFF4CAF50).withValues(alpha: 0.6)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final pads = [
+      const Offset(90, 80),
+      const Offset(125, 110),
+      const Offset(710, 380),
+    ];
+
+    for (final pos in pads) {
+      canvas.save();
+      canvas.translate(pos.dx, pos.dy);
+
+      final path = Path()
+        ..addArc(
+          Rect.fromCircle(center: Offset.zero, radius: 32),
+          0.35,
+          5.5,
+        )
+        ..lineTo(0, 0)
+        ..close();
+
+      canvas.drawPath(path, padPaint);
+      canvas.drawPath(path, padHighlight);
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _KoiPondPainter oldDelegate) => true;
+}
+
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\widgets\milkdrop_active_listening_widget.dart ===
+import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/widget_config.dart';
+import '../../../services/mock_audio_service.dart';
 import '../../../services/mock_playback_service.dart';
 
 class MilkdropActiveListeningWidget extends StatefulWidget {
@@ -2494,6 +3199,8 @@ class _MilkdropActiveListeningWidgetState
     extends State<MilkdropActiveListeningWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _visualizerController;
+  StreamSubscription<List<double>>? _audioSubscription;
+  double _audioAmplitude = 0.5;
 
   @override
   void initState() {
@@ -2505,7 +3212,31 @@ class _MilkdropActiveListeningWidgetState
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Subscribe to MockAudioService stream
+    _audioSubscription?.cancel();
+    final audioService = Provider.of<MockAudioService>(context, listen: false);
+    _audioSubscription = audioService.audioStream.listen((pcmBuffer) {
+      if (!mounted) return;
+
+      // Calculate RMS amplitude from PCM sample frame
+      double sumSquares = 0.0;
+      for (final sample in pcmBuffer) {
+        sumSquares += sample * sample;
+      }
+      final rms = math.sqrt(sumSquares / pcmBuffer.length);
+
+      setState(() {
+        _audioAmplitude = rms.clamp(0.1, 1.5);
+      });
+    });
+  }
+
+  @override
   void dispose() {
+    _audioSubscription?.cancel();
     _visualizerController.dispose();
     super.dispose();
   }
@@ -2541,6 +3272,7 @@ class _MilkdropActiveListeningWidgetState
                           progress: _visualizerController.value,
                           isPlaying: playbackService.isPlaying,
                           sensitivity: widget.config.sensitivity,
+                          amplitude: _audioAmplitude,
                         ),
                       );
                     },
@@ -2627,32 +3359,35 @@ class _MilkdropPlaceholderPainter extends CustomPainter {
   final double progress;
   final bool isPlaying;
   final double sensitivity;
+  final double amplitude;
 
   _MilkdropPlaceholderPainter({
     required this.progress,
     required this.isPlaying,
     required this.sensitivity,
+    required this.amplitude,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Restrict all canvas painting operations strictly to widget bounds
     canvas.clipRect(Offset.zero & size);
 
     final center = Offset(size.width / 2, size.height / 2);
-    final maxRadius = (size.width / 2) * sensitivity;
+    // Base radius scales reactively with stream PCM amplitude and sensitivity multiplier
+    final baseMultiplier = isPlaying ? (amplitude * sensitivity) : 0.2;
+    final maxRadius = (size.width / 2) * baseMultiplier;
 
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = 2.5;
 
-    for (int i = 0; i < 5; i++) {
-      final radius = ((progress + (i * 0.2)) % 1.0) * maxRadius;
+    for (int i = 0; i < 6; i++) {
+      final radius = ((progress + (i * 0.16)) % 1.0) * maxRadius;
       paint.color = HSVColor.fromAHSV(
-        (1.0 - (radius / maxRadius)).clamp(0.0, 1.0),
+        (1.0 - (radius / (maxRadius > 0 ? maxRadius : 1))).clamp(0.0, 1.0),
         (progress * 360 + (i * 60)) % 360,
-        0.8,
-        0.9,
+        0.85,
+        0.95,
       ).toColor();
 
       canvas.drawCircle(center, radius, paint);
@@ -2663,11 +3398,12 @@ class _MilkdropPlaceholderPainter extends CustomPainter {
   bool shouldRepaint(covariant _MilkdropPlaceholderPainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.isPlaying != isPlaying ||
-        oldDelegate.sensitivity != sensitivity;
+        oldDelegate.sensitivity != sensitivity ||
+        oldDelegate.amplitude != amplitude;
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\widgets\vinyl_active_listening_widget.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\widgets\vinyl_active_listening_widget.dart ===
 import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -2986,11 +3722,11 @@ class _VinylActiveListeningWidgetState extends State<VinylActiveListeningWidget>
                                         ),
 
                                         // 2. STATIONARY SPECULAR GLARE
-                                        IgnorePointer(
+                                        const IgnorePointer(
                                           child: CustomPaint(
-                                            size: const Size(360, 360),
+                                            size: Size(360, 360),
                                             painter:
-                                                const _VinylSpecularGlarePainter(),
+                                                _VinylSpecularGlarePainter(),
                                           ),
                                         ),
                                       ],
@@ -3058,7 +3794,7 @@ class _VinylActiveListeningWidgetState extends State<VinylActiveListeningWidget>
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
-                                    '${currentTrack.artist} â€¢ ${currentTrack.album}',
+                                    '${currentTrack.artist} \u2022 ${currentTrack.album}',
                                     style: TextStyle(
                                       fontSize: 19,
                                       color: subtitleTextColor,
@@ -3231,7 +3967,7 @@ class _VinylSpecularGlarePainter extends CustomPainter {
   bool shouldRepaint(covariant _VinylSpecularGlarePainter oldDelegate) => false;
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\lib\ui\widgets\weather_widget.dart ===
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\lib\ui\widgets\weather_widget.dart ===
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -3270,7 +4006,7 @@ class WeatherWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${weather.temperatureF.round()}Â°F',
+                '${weather.temperatureF.round()}\u00B0F',
                 style: TextStyle(
                   fontSize: 76,
                   fontWeight: FontWeight.bold,
@@ -3280,7 +4016,7 @@ class WeatherWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                '${weather.condition} â€¢ ${weather.locationName}',
+                '${weather.condition} \u2022 ${weather.locationName}',
                 style: TextStyle(
                   fontSize: 22,
                   color: secondaryTextColor,
@@ -3295,35 +4031,19 @@ class WeatherWidget extends StatelessWidget {
   }
 }
 
-=== File: C:\Users\michael.emborsky\OneDrive - Smart Care Solutions\Documents\GitHub\PAL\test\widget_test.dart ===
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
+=== File: C:\Users\micha\Desktop\Personal\Github\SoundScape\PAL\test\widget_test.dart ===
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:pal/main.dart';
+import 'package:pal/ui/standby_view.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('PALApp renders StandbyView successfully',
+      (WidgetTester tester) async {
     await tester.pumpWidget(const PALApp());
+    await tester.pumpAndSettle();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify StandbyView loaded correctly
+    expect(find.byType(StandbyView), findsOneWidget);
   });
 }
 

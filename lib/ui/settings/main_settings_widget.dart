@@ -207,7 +207,7 @@ class _MainSettingsWidgetState extends State<MainSettingsWidget> {
                       if (!isSettings)
                         Switch(
                           value: item.isEnabled,
-                          activeColor: theme.colorScheme.primary,
+                          activeThumbColor: theme.colorScheme.primary,
                           onChanged: (enabled) =>
                               widget.onToggle(item.id, enabled),
                         ),
